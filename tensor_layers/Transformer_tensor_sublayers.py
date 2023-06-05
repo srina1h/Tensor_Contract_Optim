@@ -31,41 +31,10 @@ set_scale_factors: True or False
 """
 
 
-"""
-config_forward:
-prune_mask: True or False. Use prune mask or not 
-threshold: float number. The threshold to clip rank_parameters to 0
-quantized: 0: full precision. 1: quantization-aware training. 2: low-precision training.
-if quantized:
-    rep: INT or FLOAT. quantization type
-    bit_input/factors/intermediate/out: bits for each part
-    rounding: stochastic or nearest. Rounding type
-"""
-
-# def create_linear_layers(in_features,out_features,bias=True,tensorized=False,config=None):
-#     if tensorized==True:
-#         return TensorizedLinear_module(in_features,out_features, config, bias=bias)
-#     else: 
-#         return torch.nn.Linear(in_features,out_features,bias=bias)
-    
-
-# class wrapped_linear_layers(nn.Module):
-#     def __init__(self,in_features,out_features,bias=True,tensorized=False,config=None):
-#         super(wrapped_linear_layers,self).__init__()
-#         if tensorized==True:
-#             self.layer = TensorizedLinear_module(in_features,out_features, config, bias=bias)
-#         else: 
-#             self.layer = torch.nn.Linear(in_features,out_features,bias=bias)
-    
-#         self.tensorized = tensorized
-#     def forward(self,input,config_forward=None):
-#         if self.tensorized:
-#             return self.layer(input,config_forward=config_forward)
-#         else:
-#             return self.layer(input)
-        
-
 class Transformer_classifier(nn.Module):
+    """
+    create classification head for Transformer: Linear + Tanh + Dropout + Linear
+    """
     def __init__(self,config):
         super(Transformer_classifier,self).__init__()
         self.fc1 = wrapped_linear_layers(config.d_model, config.d_model, tensorized=config.tensorized,config=config, bias=True)
@@ -85,6 +54,9 @@ class Transformer_classifier(nn.Module):
 
 
 class Transformer_Embedding(nn.Module):
+    """
+    create embedding for Transformer: WordEmbedding + PositionalEmbedding + TokentypeEMbedding
+    """
     def __init__(self,config):
         super(Transformer_Embedding,self).__init__()
         if config.tensorized==True:
@@ -120,8 +92,9 @@ class Transformer_Embedding(nn.Module):
         
 
 class EncoderLayer(nn.Module):
-    ''' Compose with two layers '''
-
+    """
+    create EncoderLayer: Attention + PositionwiseFeedForward
+    """
     def __init__(self, config):
         super(EncoderLayer, self).__init__()
 
@@ -200,12 +173,6 @@ class Tensor_Attention(nn.Module):
         self.n_head = n_head
 
 
-
-        # self.w_qs = TensorizedLinear_module(d_model, d_q*n_head, config.attn['q'], bias=True)
-        # self.w_ks = TensorizedLinear_module(d_model, d_k*n_head, config.attn['k'], bias=True)
-        # self.w_vs = TensorizedLinear_module(d_model, d_v*n_head, config.attn['v'], bias=True)
-
-        # self.fc = TensorizedLinear_module(d_model, d_v*n_head, config, bias=True)
 
         self.w_qs = wrapped_linear_layers(d_model, d_q*n_head, tensorized=config.tensorized,config=config.attn['q'], bias=True)
         self.w_ks = wrapped_linear_layers(d_model, d_k*n_head, tensorized=config.tensorized,config=config.attn['k'], bias=True)

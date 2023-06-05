@@ -9,12 +9,8 @@ from .low_rank_tensors import TensorTrain,TensorTrainMatrix
 from .utils import config_class, TT_forward
 from .emb_utils import get_cum_prod,tensorized_lookup
 
-# from .tt_fwd_bwd import TT_forward_quant
 
-
-# from qtorch.quant import fixed_point_quantize, block_quantize, float_quantize
-# from ..common_types import _size_1_t, _size_2_t, _size_3_t
-
+#create wrapped linear layers such that tensor-compressed linear layers and regular linear layers use same forward configuration.
 class wrapped_linear_layers(nn.Module):
     def __init__(self,in_features,out_features,bias=True,tensorized=False,config=None):
         super(wrapped_linear_layers,self).__init__()
@@ -30,6 +26,8 @@ class wrapped_linear_layers(nn.Module):
         else:
             return self.layer(input)
 
+
+#create tensor-compressed embeddings
 class TensorizedEmbedding(nn.Module):
     def __init__(self,
                 in_features,
@@ -43,7 +41,6 @@ class TensorizedEmbedding(nn.Module):
 
         self.shape = config.shape
 
-        # target_stddev = np.sqrt(1/(np.prod(self.shape[0])+np.prod(self.shape[1])))
         target_stddev = 1.0
 
         
@@ -74,7 +71,7 @@ class TensorizedEmbedding(nn.Module):
         return rows.to(x.device)
 
 
-
+#create tensor-compressed linear layers
 class TensorizedLinear_module(nn.Module):
     def __init__(self,
                 in_features,
@@ -116,20 +113,10 @@ class TensorizedLinear_module(nn.Module):
 
 
     def forward(self,input,config_forward=None):
-        """
-        config_forward:
-        prune_mask: True or False. Use prune mask or not 
-        threshold: float number. The threshold to clip rank_parameters to 0
-        quantized: 0: full precision. 1: quantization-aware training. 2: low-precision training.
-        if quantized:
-            rep: INT or FLOAT. quantization type
-            bit_input/factors/intermediate/out: bits for each part
-            rounding: stochastic or nearest. Rounding type
-        """
+
       
         factors =self.tensor.factors
 
-        # out = self.forward_tt_full_precision(input,factors) + self.bias
         out = TT_forward.apply(input,*factors)+self.bias
 
 
