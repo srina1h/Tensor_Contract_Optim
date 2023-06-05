@@ -2,7 +2,7 @@ import torch
 import numpy as np
 import tensorly as tl
 from functools import reduce
-from qtorch.quant import fixed_point_quantize, block_quantize, float_quantize
+
 
 def get_tensorized_index(idx,cum_prod):
     rem = idx
@@ -168,119 +168,8 @@ def ttm_gather_rows(cores, inds,shape):
 
 
 
-def TTM_lookup_LP(idx,cores,cum_prod,shape,rounding,bits):
-    """
-    inds -- list of indices of shape batch_size x d
-    d = len(tt_mat.raw_shape[1])
-    """
-    inds = get_tensorized_index(idx,cum_prod) 
-    shape = shape
-
-    slices = []
-    batch_size = int(inds.shape[0])
-
-    ranks = [int(core.shape[0]) for core in cores] + [1, ]
-
-    factors = []
-    for k, core in enumerate(cores):
-        i = inds[:, k]
-
-        # print(torch.unique(i).shape)
- 
-        cur_slice = torch.index_select(core, 1, i)
-        
-        factors.append(cur_slice)
-
-    
-
-    res = TTM_emb.apply(rounding,bits,*factors)
-    # print(res.shape)
-    return res.reshape(-1,np.prod(shape[1]))
 
 
-
-class TTM_emb(torch.autograd.Function):
-    @staticmethod
-    def forward(ctx, rounding, bits, *factors):
-        ctx.bits = bits
-        ctx.rounding = rounding
-        ctx.factors = factors
-        ctx.left = []
-        
-        Q = lambda x: float_quantize(x, exp=bits[1], man=bits[2], rounding=rounding)
-        
-        # out = torch.squeeze(factors[0])
-        out = factors[0]
-        ctx.left.append(out)
-        for U in factors[1:]:
-            out = Q(torch.einsum('rbmp,pbnq->rbmnq',out,U))
-            out = (torch.flatten(out,start_dim=2,end_dim=3))
-            ctx.left.append(out)
-            
-        
-        # out = torch.squeeze(out)
-        return out 
-
-    @staticmethod
-    def backward(ctx, dy):
-        Q = lambda x: float_quantize(x, exp=ctx.bits[1], man=ctx.bits[2], rounding=ctx.rounding)
-        
-        factors = ctx.factors
-        
-        m = [U.shape[2] for U in factors]
-        b = dy.shape[1]
-        
-        scale_y = max((torch.mean(torch.abs(dy))+0*torch.sqrt(torch.var(torch.abs(dy))))*(1e-2),1e-8)
-        
-        
-        # Q = lambda x:x
-        # scale_y = 1
-        
-        dy_Q = float_quantize(dy/scale_y, exp=ctx.bits[1], man=ctx.bits[2], rounding=ctx.rounding)
-        
-        # print('scale',scale_y)
-        
-        # print(torch.norm(dy-dy_Q)/torch.norm(dy))
-        # print(torch.min(torch.abs(dy_Q)))
-        # print(torch.max(torch.abs(dy_Q)))
-            
-        dy = dy_Q
-        
-        
-        
-        # print(torch.mean(torch.abs(dy)))
-        
-        # dy = torch.reshape(dy,[b]+m)
-        
-        left = ctx.left
-        
-        
-        grads = []
-        right_U = dy
-        
-
-        
-        for i in range(len(factors)-1):
-            j = -i-1
-            left_U = left[j-1]
-            
-
-            right_U = torch.reshape(right_U,[right_U.shape[0],b,-1,m[j],right_U.shape[-1]])
-
-            
-            grad = Q(torch.einsum('rbmp,sbmnq->rpbnsq',left_U,right_U))
-            grads = [grad.reshape(grad.shape[1:-1])*scale_y] + grads
-            
-            right_U = Q(torch.einsum('rbmp,pbnmq->rbnq',factors[j],right_U))
-            
-        grads = [right_U.transpose(0,-1)*scale_y]+grads
-        
-
-
-
-        
-        return None,None,*grads
-        
         
         
             
@@ -291,16 +180,4 @@ class TTM_emb(torch.autograd.Function):
         
         
         
-        
-
-
-"""
-def convert_to_tt(idx,dims):
-    out = []
-    rem = idx
-
-    for x in dims:
-        val,rem = divmod(rem,int(x)) 
-        out.append(val)
-    return out
-"""
+      
