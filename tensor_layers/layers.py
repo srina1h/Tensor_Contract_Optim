@@ -33,6 +33,12 @@ class TensorizedEmbedding(nn.Module):
                 in_features,
                 out_features,
                 config):
+        """
+        config has following attributes:
+        shape: the shape of the tensor 
+                [[n1,n2,...,nk],[m1,...,mk]] -> in_features = n1...nk and out_features = m1...mk
+        ranks: either a number or a list of numbers to specify the ranks 
+        """
 
         super(TensorizedEmbedding,self).__init__()
 
@@ -81,9 +87,9 @@ class TensorizedLinear_module(nn.Module):
     ):
         """
         config has following attributes:
-        shape: the shape of the tensor
+        shape: the shape of the tensor 
+                [n1,n2,...,nk,m1,...,mk] -> in_features = n1...nk and out_features = m1...mk
         ranks: either a number or a list of numbers to specify the ranks 
-        set_scale_factors: True or False
         """
     
 

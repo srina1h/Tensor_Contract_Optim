@@ -1,8 +1,30 @@
 import torch
 from tensor_layers.utils import config_class
 from tensor_layers.Transformer_tensor import Transformer_classification
+import time
 
+def benchmark(model,input,iters):
+    start = torch.cuda.Event(enable_timing=True)
+    end = torch.cuda.Event(enable_timing=True)
 
+    
+    
+    torch.cuda.synchronize()
+    
+    st = time.time()
+    for i in range(iters):
+        y = model(input)
+        y = torch.sum(y**2)
+        y.backward()
+        model.zero_grad()
+        torch.cuda.synchronize()
+    torch.cuda.synchronize()
+    ed = time.time()
+    t = (ed-st)*100/iters
+    
+    print("{t:.2f}s per 100 iteration".format(t=t))
+
+device = 'cuda'
 
 D = {
     'n_layers': 12,
@@ -48,19 +70,19 @@ for key in ['q','k','v','fc']:
 config_model.embedding = config_class(shape=emb_shape,ranks=emb_rank,set_scale_factors=set_scale_factors)
 
 
-num_class = 22
+num_class = 2
 
 config_classification = config_class(d_model=D['d_model'],tensorized=D['tensorized'],num_class=num_class,dropout=D['dropout'],shape=classification_shape,ranks=classification_rank,set_scale_factors=set_scale_factors)
 
 
 
-model = Transformer_classification(config_model,config_classification)
+model = Transformer_classification(config_model,config_classification).to(device)
 
 
-print(model)
+input = torch.randint(0,30000,(32,128)).to(device)
 
-input = torch.randint(0,30000,(2,32))
-y = model(input)
-print(y[1].shape)
+benchmark(model,input,100)
+
+
 
 
