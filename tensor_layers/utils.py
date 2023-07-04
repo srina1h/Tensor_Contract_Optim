@@ -180,4 +180,4 @@ class TT_forward(torch.autograd.Function):
 
             all_grads = [g for g in left_grads+right_grads]
 
-        return dx, *(all_grads)
+        return dx, *all_grads
