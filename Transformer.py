@@ -13,14 +13,14 @@ def benchmark(model, input, iters):
 
     st = time.time()
     for i in range(iters):
-        with profile(activities=[ProfilerActivity.CUDA, ProfilerActivity.CPU], record_shapes=True, use_cuda=True) as prof:
-            with record_function("model_inference"):
-                y = model(input)
-                y = torch.sum(y**2)
-                y.backward()
-                model.zero_grad()
-                torch.cuda.synchronize()
-        print(prof.key_averages().table(sort_by="cuda_time_total", row_limit=50))
+        # with profile(activities=[ProfilerActivity.CUDA, ProfilerActivity.CPU], record_shapes=True, use_cuda=True) as prof:
+        #     with record_function("model_inference"):
+        y = model(input)
+        y = torch.sum(y**2)
+        y.backward()
+        model.zero_grad()
+        torch.cuda.synchronize()
+        # print(prof.key_averages().table(sort_by="cuda_time_total", row_limit=50))
     torch.cuda.synchronize()
     ed = time.time()
     t = (ed-st)*100/iters
