@@ -22,6 +22,7 @@ def benchmark(model, input, iters):
                 model.zero_grad()
                 torch.cuda.synchronize()
         print(prof.key_averages().table(sort_by="cuda_time_total", row_limit=50))
+        prof.export_chrome_trace("results.json")
     torch.cuda.synchronize()
     ed = time.time()
     t = (ed-st)*100/iters
@@ -81,8 +82,7 @@ config_model.embedding = config_class(
 
 num_class = 2
 
-config_classification = config_class(d_model=D['d_model'], tensorized=D['tensorized'], num_class=num_class,
-                                     dropout=D['dropout'], shape=classification_shape, ranks=classification_rank, set_scale_factors=set_scale_factors)
+config_classification = config_class(d_model=D['d_model'], tensorized=D['tensorized'], num_class=num_class, dropout=D['dropout'], shape=classification_shape, ranks=classification_rank, set_scale_factors=set_scale_factors)
 
 
 model = Transformer_classification(

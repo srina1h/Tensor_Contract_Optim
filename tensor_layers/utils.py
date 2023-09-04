@@ -1,6 +1,7 @@
 import torch
 import numpy as np
 import torch.nn.functional as F
+from torch.profiler import profile, record_function, ProfilerActivity
 
 
 class config_class():
@@ -17,59 +18,64 @@ class TT_forward(torch.autograd.Function):
     def forward(ctx, matrix, *factors):
 
         with torch.no_grad():
+            with profile(activities=[ProfilerActivity.CUDA, ProfilerActivity.CPU], record_shapes=True, use_cuda=True) as prof:
+                with record_function("forward"):
 
-            tt_shape = [U.shape[1] for U in factors]
-            ndims = len(factors)
-            d = int(ndims / 2)
+                    tt_shape = [U.shape[1] for U in factors]
+                    ndims = len(factors)
+                    d = int(ndims / 2)
 
-            ctx.input_shape = matrix.shape
-            if len(matrix.shape) == 3:
-                out_shape = [matrix.shape[0], matrix.shape[1],
-                             np.prod(list(tt_shape[d:]))]
-                matrix = torch.flatten(matrix, start_dim=0, end_dim=1)
-            else:
-                out_shape = [matrix.shape[0], np.prod(list(tt_shape[d:]))]
-            ctx.out_shape = out_shape
+                    ctx.input_shape = matrix.shape
+                    if len(matrix.shape) == 3:
+                        out_shape = [matrix.shape[0], matrix.shape[1],
+                                     np.prod(list(tt_shape[d:]))]
+                        matrix = torch.flatten(matrix, start_dim=0, end_dim=1)
+                    else:
+                        out_shape = [matrix.shape[0],
+                                     np.prod(list(tt_shape[d:]))]
+                    ctx.out_shape = out_shape
 
-            ctx.factors = factors
-            ctx.matrix = matrix
+                    ctx.factors = factors
+                    ctx.matrix = matrix
 
-            ndims = len(factors)
-            d = int(ndims / 2)
-            ranks = [U.shape[0] for U in factors] + [1]
-            tt_shape = [U.shape[1] for U in factors]
-            tt_shape_row = list(tt_shape[:d])
-            tt_shape_col = list(tt_shape[d:])
-            matrix_cols = matrix.shape[0]
+                    ndims = len(factors)
+                    d = int(ndims / 2)
+                    ranks = [U.shape[0] for U in factors] + [1]
+                    tt_shape = [U.shape[1] for U in factors]
+                    tt_shape_row = list(tt_shape[:d])
+                    tt_shape_col = list(tt_shape[d:])
+                    matrix_cols = matrix.shape[0]
 
-            saved_tensors = [matrix]
-            left = []
-            right = []
+                    saved_tensors = [matrix]
+                    left = []
+                    right = []
 
-            output = factors[0].reshape(-1, ranks[1])
-            left.append(output)
+                    output = factors[0].reshape(-1, ranks[1])
+                    left.append(output)
 
-            for core in factors[1:d]:
-                output = (torch.tensordot(output, core, dims=([-1], [0])))
-                left.append(output)
+                    for core in factors[1:d]:
+                        output = (torch.tensordot(
+                            output, core, dims=([-1], [0])))
+                        left.append(output)
 
-            output = F.linear(matrix, torch.movedim(
-                output.reshape(np.prod(tt_shape_row), -1), -1, 0))
+                    output = F.linear(matrix, torch.movedim(
+                        output.reshape(np.prod(tt_shape_row), -1), -1, 0))
 
-            saved_tensors.append(left)
+                    saved_tensors.append(left)
 
-            temp = factors[d]
-            right.append(temp)
-            for core in factors[d + 1:]:
-                temp = (torch.tensordot(temp, core, dims=([-1], [0])))
-                right.append(temp)
+                    temp = factors[d]
+                    right.append(temp)
+                    for core in factors[d + 1:]:
+                        temp = (torch.tensordot(temp, core, dims=([-1], [0])))
+                        right.append(temp)
 
-            output = F.linear(output, torch.movedim(temp.reshape(ranks[d], np.prod(tt_shape_col)),
-                                                    0, -1)).reshape(matrix_cols, np.prod(tt_shape_col)).reshape(*out_shape)
+                    output = F.linear(output, torch.movedim(temp.reshape(ranks[d], np.prod(tt_shape_col)),
+                                                            0, -1)).reshape(matrix_cols, np.prod(tt_shape_col)).reshape(*out_shape)
 
-            saved_tensors.append(right)
-            ctx.saved_tensors_custom = saved_tensors
-
+                    saved_tensors.append(right)
+                    ctx.saved_tensors_custom = saved_tensors
+            print(prof.key_averages().table(
+                sort_by="cuda_time_total", row_limit=50))
         return output
 
     @staticmethod
@@ -114,7 +120,7 @@ class TT_forward(torch.autograd.Function):
                         grad, right_core, dims=([2, 3], [1, 2])))
 
                     right_core = torch.tensordot(factors[i], right_core,
-                                                 dims=([-1], [0])).reshape(ranks[i], -1, ranks[d])
+                                                    dims=([-1], [0])).reshape(ranks[i], -1, ranks[d])
 
                 if grad.shape != factors[i].shape:
                     grad = grad.reshape(list(factors[i].shape))
@@ -142,7 +148,8 @@ class TT_forward(torch.autograd.Function):
                                         dims=([0], [0])))
 
                 if i == d - 1:
-                    right_core = factors[d + i].reshape(-1, tt_shape_col[i])
+                    right_core = factors[d +
+                                            i].reshape(-1, tt_shape_col[i])
                 else:
 
                     grad = (torch.tensordot(
@@ -179,5 +186,4 @@ class TT_forward(torch.autograd.Function):
             dx = torch.reshape(dx, ctx.input_shape)
 
             all_grads = [g for g in left_grads+right_grads]
-
         return dx, *(all_grads)
