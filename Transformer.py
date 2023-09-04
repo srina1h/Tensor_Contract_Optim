@@ -15,7 +15,6 @@ def benchmark(model, input, iters):
     for i in range(iters):
         with profile(activities=[ProfilerActivity.CUDA, ProfilerActivity.CPU], record_shapes=True, use_cuda=True) as prof:
             with record_function("model_inference"):
-                prof.export_chrome_trace("results.json")
                 y = model(input)
                 y = torch.sum(y**2)
                 y.backward()
