@@ -13,7 +13,7 @@ def benchmark(model, input, iters):
 
     st = time.time()
     for i in range(iters):
-        with profile(activities=[ProfilerActivity.CUDA, ProfilerActivity.CPU], record_shapes=True, use_cuda=True) as prof:
+        with profile(activities=[ProfilerActivity.CUDA, ProfilerActivity.CPU], record_shapes=True, use_cuda=True, with_stack=True) as prof:
             with record_function("model_inference"):
                 y = model(input)
                 y = torch.sum(y**2)
@@ -21,7 +21,7 @@ def benchmark(model, input, iters):
                 model.zero_grad()
                 torch.cuda.synchronize()
         print(prof.key_averages().table(sort_by="cuda_time_total", row_limit=50))
-        prof.export_chrome_trace("results.json")
+        profile.export_chrome_trace("results.json")
     torch.cuda.synchronize()
     ed = time.time()
     t = (ed-st)*100/iters
