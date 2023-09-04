@@ -13,7 +13,7 @@ def benchmark(model, input, iters):
 
     st = time.time()
     for i in range(iters):
-        with profile(activities=[ProfilerActivity.CUDA, ProfilerActivity.CPU], record_shapes=True, use_cuda=True, with_stack=True) as prof:
+        with profile(activities=[ProfilerActivity.CUDA, ProfilerActivity.CPU], record_shapes=True, use_cuda=True, with_stack=False) as prof:
             with record_function("model_inference"):
                 y = model(input)
                 y = torch.sum(y**2)
