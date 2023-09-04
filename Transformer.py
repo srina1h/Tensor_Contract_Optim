@@ -21,11 +21,10 @@ def benchmark(model, input, iters):
                 model.zero_grad()
                 torch.cuda.synchronize()
         print(prof.key_averages().table(sort_by="cuda_time_total", row_limit=50))
+        prof.export_chrome_trace("results.json")
     torch.cuda.synchronize()
     ed = time.time()
     t = (ed-st)*100/iters
-
-    prof.export_chrome_trace("results.json")
 
     print("{t:.2f}s per 100 iteration".format(t=t))
 
