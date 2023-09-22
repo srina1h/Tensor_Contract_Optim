@@ -1,6 +1,7 @@
 import torch
 import numpy as np
 import torch.nn.functional as F
+import nvtx
 
 class config_class():
     def __init__(self,
@@ -49,10 +50,11 @@ class TT_forward(torch.autograd.Function):
             left.append(output)
 
             for core in factors[1:d]:
-                output = (torch.tensordot(output, core, dims=([-1], [0])))
+                with nvtx.annotate("tt_forward-tensordot1", color = "purple"):
+                    output = (torch.tensordot(output, core, dims=([-1], [0])))
                 left.append(output)
-
-            output = F.linear(matrix, torch.movedim(output.reshape(np.prod(tt_shape_row), -1), -1, 0))
+            with nvtx.annotate("tt_forward-linear", color = "red"):
+                output = F.linear(matrix, torch.movedim(output.reshape(np.prod(tt_shape_row), -1), -1, 0))
 
 
             saved_tensors.append(left)
@@ -60,12 +62,13 @@ class TT_forward(torch.autograd.Function):
             temp = factors[d]
             right.append(temp)
             for core in factors[d + 1:]:
-                temp = (torch.tensordot(temp, core, dims=([-1], [0])))
+                with nvtx.annotate("tt_forward-tensordot2", color = "purple"):
+                    temp = (torch.tensordot(temp, core, dims=([-1], [0])))
                 right.append(temp)
 
 
-            
-            output = F.linear(output, torch.movedim(temp.reshape(ranks[d], np.prod(tt_shape_col)),
+            with nvtx.annotate("tt_forward-linear2", color = "red"):
+                output = F.linear(output, torch.movedim(temp.reshape(ranks[d], np.prod(tt_shape_col)),
                                             0, -1)).reshape(matrix_cols, np.prod(tt_shape_col)).reshape(*out_shape)
         
             
