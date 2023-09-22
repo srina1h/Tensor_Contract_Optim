@@ -27,7 +27,6 @@ class PositionalEncoding(nn.Module):
 
         return torch.FloatTensor(sinusoid_table).unsqueeze(0)
 
-    def forward(self, x):
         # print(self.pos_table[:, :x.size(1),:2])
         return x + self.pos_table[:, :x.size(1)].clone().detach()
 
@@ -45,11 +44,14 @@ class Encoder(nn.Module):
             self.encoder_blocks.append(EncoderLayer(config))
     
     def forward(self,input,mask=None,seg=None,config_forward=None):
+        torch.cuda.nvtx.range_push("Embedding")
         output = self.embedding(input,seg=seg,config_forward=config_forward)
+        torch.cuda.nvtx.range_pop()
 
+        torch.cuda.nvtx.range_push("after attention")
         for layer in self.encoder_blocks:
             output, attn = layer(output,mask=mask,config_forward=config_forward)
-        
+        torch.cuda.nvtx.range_pop()
         return output
 
 class Transformer_classification(nn.Module):
@@ -61,10 +63,11 @@ class Transformer_classification(nn.Module):
         self.classifier = Transformer_classifier(config_classifiction)
 
     def forward(self,input,mask=None,seg=None,config_forward=None):
+        torch.cuda.nvtx.range_push("Encoder")
         output = self.encoder(input,mask=mask,seg=seg,config_forward=config_forward)
-
+        torch.cuda.nvtx.range_pop()
         output = output[:,0,:]
-
+        torch.cuda.nvtx.range_push("Classsifier")
         output = self.classifier(output,config_forward=config_forward)
-
+        torch.cuda.nvtx.range_pop()
         return output

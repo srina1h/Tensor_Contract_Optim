@@ -79,6 +79,7 @@ class TT_forward(torch.autograd.Function):
     @staticmethod
     def backward(ctx, dy):
         with torch.no_grad():
+            torch.cuda.nvtx.range_push("backward")
             factors = ctx.factors
             ndims = len(factors)
             d = int(ndims / 2)
@@ -190,7 +191,7 @@ class TT_forward(torch.autograd.Function):
             dx = torch.reshape(dx,ctx.input_shape)            
 
             all_grads = [g for g in left_grads+right_grads]
-
+            torch.cuda.nvtx.range_pop()
 
 
         return dx, *(all_grads)
