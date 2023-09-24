@@ -13,26 +13,26 @@ def benchmark(model, input, iters):
     st = time.time()
     for i in range(iters):
         if i == warmup_iters:
-            torch.cuda.cudart().cudaProfilerStart()
+            # torch.cuda.cudart().cudaProfilerStart()
         if i >= warmup_iters:
-            torch.cuda.nvtx.range_push("Iteration {}".format(i))
+            # torch.cuda.nvtx.range_push("Iteration {}".format(i))
         if i >= warmup_iters:
-            torch.cuda.nvtx.range_push("forward")
+            # torch.cuda.nvtx.range_push("forward")
         y = model(input)
         if i >= warmup_iters:
-            torch.cuda.nvtx.range_pop()
+            # torch.cuda.nvtx.range_pop()
         y = torch.sum(y**2)
         if i >= warmup_iters:
-            torch.cuda.nvtx.range_push("backward")
+            # torch.cuda.nvtx.range_push("backward")
         y.backward()
         if i >= warmup_iters:
-            torch.cuda.nvtx.range_pop()
+            # torch.cuda.nvtx.range_pop()
         model.zero_grad()
         torch.cuda.synchronize()
         if i >= warmup_iters:
-            torch.cuda.nvtx.range_pop()
+            # torch.cuda.nvtx.range_pop()
     torch.cuda.synchronize()
-    torch.cuda.cudart().cudaProfilerStop()
+    # torch.cuda.cudart().cudaProfilerStop()
     ed = time.time()
     t = (ed-st)*100/iters
 

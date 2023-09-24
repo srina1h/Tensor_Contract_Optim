@@ -48,7 +48,7 @@ class TT_forward(torch.autograd.Function):
 
             output = factors[0].reshape(-1, ranks[1])
             left.append(output)
-
+            torch.cuda.cudart().cudaProfilerStart()
             for core in factors[1:d]:
                 with nvtx.annotate("tt_forward-tensordot1", color = "purple"):
                     output = (torch.tensordot(output, core, dims=([-1], [0])))
@@ -70,7 +70,7 @@ class TT_forward(torch.autograd.Function):
             with nvtx.annotate("tt_forward-linear2", color = "red"):
                 output = F.linear(output, torch.movedim(temp.reshape(ranks[d], np.prod(tt_shape_col)),
                                             0, -1)).reshape(matrix_cols, np.prod(tt_shape_col)).reshape(*out_shape)
-        
+            torch.cuda.cudart().cudaProfilerStop()
             
             saved_tensors.append(right)
             ctx.saved_tensors_custom = saved_tensors
