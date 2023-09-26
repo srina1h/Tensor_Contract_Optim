@@ -90,7 +90,7 @@ class TT_forward(torch.autograd.Function):
             saved_tensors = ctx.saved_tensors_custom
 
             
-            
+            torch.cuda.cudart().cudaProfilerStart()
             if len(dy.shape)==3:
                 with nvtx.annotate("tt_forward_B-flatten1", color = "red"):
                     dy = torch.flatten(dy,start_dim=0,end_dim=1)
@@ -201,7 +201,7 @@ class TT_forward(torch.autograd.Function):
             with nvtx.annotate("tt_forward_B-tensordot16", color = "purple"):
                 dx = (torch.tensordot(dx, temp.reshape(np.prod(tt_shape_row), -1), dims=([-1], [-1])))
             dx = torch.reshape(dx,ctx.input_shape)            
-
+            torch.cuda.cudart().cudaProfilerStop()
             all_grads = [g for g in left_grads+right_grads]
 
 
