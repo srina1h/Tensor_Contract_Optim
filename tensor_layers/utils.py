@@ -1,6 +1,7 @@
 import torch
 import numpy as np
 import torch.nn.functional as F
+import nvtx
 
 class config_class():
     def __init__(self,
@@ -91,7 +92,8 @@ class TT_forward(torch.autograd.Function):
             
             
             if len(dy.shape)==3:
-                dy = torch.flatten(dy,start_dim=0,end_dim=1)
+                with nvtx.annotate("tt_forward_B-flatten1", color = "red"):
+                    dy = torch.flatten(dy,start_dim=0,end_dim=1)
 
 
             matrix = saved_tensors[0]
@@ -103,15 +105,16 @@ class TT_forward(torch.autograd.Function):
             dy_core_prod = right[-1]
 
 
-        
-            dy_core_prod = (torch.tensordot(dy, dy_core_prod.reshape(dy_core_prod.shape[0], -1), dims=([1], [1])))
+            with nvtx.annotate("tt_forward_B-tensordot1", color = "purple"):
+                dy_core_prod = (torch.tensordot(dy, dy_core_prod.reshape(dy_core_prod.shape[0], -1), dims=([1], [1])))
 
-
-            matrix_dy_core_prod = torch.tensordot(matrix, dy_core_prod, dims=([0], [0]))
+            with nvtx.annotate("tt_forward_B-tensordot2", color = "purple"):
+                matrix_dy_core_prod = torch.tensordot(matrix, dy_core_prod, dims=([0], [0]))
 
 
             for i in reversed(range(1, d)):
-                grad = (torch.tensordot(left[i - 1].reshape(-1, ranks[i]),
+                with nvtx.annotate("tt_forward_B-tensordot3", color = "purple"):
+                    grad = (torch.tensordot(left[i - 1].reshape(-1, ranks[i]),
                                     matrix_dy_core_prod.reshape(np.prod(tt_shape_row[:i]), tt_shape_row[i], -1,
                                                                 ranks[d]),
                                     dims=([0], [0])))
@@ -119,16 +122,20 @@ class TT_forward(torch.autograd.Function):
                 if i == d - 1:
                     right_core = factors[i]
                 else:
-                    grad = (torch.tensordot(grad, right_core, dims=([2, 3], [1, 2])))
+                    with nvtx.annotate("tt_forward_B-tensordot4", color = "purple"):
+                        grad = (torch.tensordot(grad, right_core, dims=([2, 3], [1, 2])))
 
-                    right_core = torch.tensordot(factors[i], right_core,
+                    with nvtx.annotate("tt_forward_B-tensordot5", color = "purple"):
+                        right_core = torch.tensordot(factors[i], right_core,
                                                 dims=([-1], [0])).reshape(ranks[i], -1, ranks[d])
                 
                 if grad.shape != factors[i].shape:
-                    grad = grad.reshape(list(factors[i].shape))
+                    with nvtx.annotate("tt_forward_B-reshape1", color = "green"):
+                        grad = grad.reshape(list(factors[i].shape))
                 # print(grad.shape)
                 left_grads.append(grad)
-            temp = (torch.tensordot(matrix_dy_core_prod.reshape(tt_shape_row[0], -1, ranks[d]),
+            with nvtx.annotate("tt_forward_B-tensordot6", color = "purple"):
+                temp = (torch.tensordot(matrix_dy_core_prod.reshape(tt_shape_row[0], -1, ranks[d]),
                                             right_core, dims=([1, 2], [1, 2])).reshape(1, tt_shape_row[0], -1))
 
 
@@ -137,35 +144,39 @@ class TT_forward(torch.autograd.Function):
             left_grads = left_grads[::-1]
 
             matrix_core_prod = left[-1]
-            matrix_core_prod = (torch.tensordot(matrix_core_prod.reshape(-1, matrix_core_prod.shape[-1]),
+            with nvtx.annotate("tt_forward_B-tensordot7", color = "purple"):
+                matrix_core_prod = (torch.tensordot(matrix_core_prod.reshape(-1, matrix_core_prod.shape[-1]),
                                             matrix, dims=([0], [1])))
 
             
             # print('dx=',torch.max(matrix_core_prod))
-            matrix_dy_core_prod = (torch.tensordot(matrix_core_prod, dy, dims=([1], [0])))
+            with nvtx.annotate("tt_forward_B-tensordot8", color = "purple"):
+                matrix_dy_core_prod = (torch.tensordot(matrix_core_prod, dy, dims=([1], [0])))
 
 
             for i in reversed(range(1, d)):
-                grad = (torch.tensordot(right[i - 1].reshape(-1, ranks[d + i]),
+                with nvtx.annotate("tt_forward_B-tensordot9", color = "purple"):
+                    grad = (torch.tensordot(right[i - 1].reshape(-1, ranks[d + i]),
                                     matrix_dy_core_prod.reshape(-1, tt_shape_col[i], int(np.prod(tt_shape_col[i + 1:]))),
                                     dims=([0], [0])))
             
                 if i == d - 1:
                     right_core = factors[d + i].reshape(-1, tt_shape_col[i])
                 else:
-                
-                    grad = (torch.tensordot(grad, right_core, dims=([-1], [1])))
+                    with nvtx.annotate("tt_forward_B-tensordot10", color = "purple"):
+                        grad = (torch.tensordot(grad, right_core, dims=([-1], [1])))
                     
 
-
-                    right_core = (torch.tensordot(factors[d + i], right_core, dims=([-1], [0])).reshape(ranks[d + i],-1))
+                    with nvtx.annotate("tt_forward_B-tensordot11", color = "purple"):
+                        right_core = (torch.tensordot(factors[d + i], right_core, dims=([-1], [0])).reshape(ranks[d + i],-1))
                                                                                                                                                                             
                 if grad.shape != factors[d + i].shape:
                     grad = grad.reshape(list(factors[i].shape))
 
                 right_grads.append(grad)
 
-            temp = (torch.tensordot(matrix_dy_core_prod.reshape(ranks[d], tt_shape_col[0], -1),
+            with nvtx.annotate("tt_forward_B-tensordot12", color = "purple"):
+                temp = (torch.tensordot(matrix_dy_core_prod.reshape(ranks[d], tt_shape_col[0], -1),
                                             right_core, dims=([-1], [1])))
 
             right_grads.append(temp)
@@ -174,19 +185,21 @@ class TT_forward(torch.autograd.Function):
 
             dx = factors[-1].reshape(ranks[-2], -1)
             for core in reversed(factors[d:-1]):
-                dx = (torch.tensordot(core, dx, dims=([-1], [0])))
+                with nvtx.annotate("tt_forward_B-tensordot13", color = "purple"):
+                    dx = (torch.tensordot(core, dx, dims=([-1], [0])))
 
-        
-            dx = (torch.tensordot(dy, dx.reshape(-1, np.prod(tt_shape_col)), dims=([-1], [-1])))
+            with nvtx.annotate("tt_forward_B-tensordot14", color = "purple"):
+                dx = (torch.tensordot(dy, dx.reshape(-1, np.prod(tt_shape_col)), dims=([-1], [-1])))
 
 
 
             temp = factors[0].reshape(-1, ranks[1])
             for core in factors[1:d]:
-                temp = (torch.tensordot(temp, core, dims=([-1], [0])))
+                with nvtx.annotate("tt_forward_B-tensordot15", color = "purple"):
+                    temp = (torch.tensordot(temp, core, dims=([-1], [0])))
 
-
-            dx = (torch.tensordot(dx, temp.reshape(np.prod(tt_shape_row), -1), dims=([-1], [-1])))
+            with nvtx.annotate("tt_forward_B-tensordot16", color = "purple"):
+                dx = (torch.tensordot(dx, temp.reshape(np.prod(tt_shape_row), -1), dims=([-1], [-1])))
             dx = torch.reshape(dx,ctx.input_shape)            
 
             all_grads = [g for g in left_grads+right_grads]
