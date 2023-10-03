@@ -7,22 +7,23 @@ def benchmark(model,input,iters):
     start = torch.cuda.Event(enable_timing=True)
     end = torch.cuda.Event(enable_timing=True)
 
+    with torch.autograd.profiler.profile():
+        with torch.autograd.profiler.emit_nvtx():
     
-    
-    torch.cuda.synchronize()
-    
-    st = time.time()
-    for i in range(iters):
-        y = model(input)
-        y = torch.sum(y**2)
-        y.backward()
-        model.zero_grad()
-        torch.cuda.synchronize()
-    torch.cuda.synchronize()
-    ed = time.time()
-    t = (ed-st)*100/iters
-    
-    print("{t:.2f}s per 100 iteration".format(t=t))
+            torch.cuda.synchronize()
+            
+            st = time.time()
+            for i in range(iters):
+                y = model(input)
+                y = torch.sum(y**2)
+                y.backward()
+                model.zero_grad()
+                torch.cuda.synchronize()
+            torch.cuda.synchronize()
+            ed = time.time()
+            t = (ed-st)*100/iters
+            
+            print("{t:.2f}s per 100 iteration".format(t=t))
 
 device = 'cuda'
 
