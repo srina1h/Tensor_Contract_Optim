@@ -68,8 +68,9 @@ class TT_forward(torch.autograd.Function):
 
 
             with nvtx.annotate("tt_forward-linear2", color = "red"):
-                with torch.cuda.profiler.emit_nvtx():
-                    output = F.linear(output, torch.movedim(temp.reshape(ranks[d], np.prod(tt_shape_col)),
+                with torch.cuda.profiler.profile():
+                    with torch.cuda.profiler.emit_nvtx():
+                        output = F.linear(output, torch.movedim(temp.reshape(ranks[d], np.prod(tt_shape_col)),
                                             0, -1)).reshape(matrix_cols, np.prod(tt_shape_col)).reshape(*out_shape)
             torch.cuda.cudart().cudaProfilerStop()
             
