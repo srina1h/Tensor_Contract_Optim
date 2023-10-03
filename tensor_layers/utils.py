@@ -11,6 +11,7 @@ class config_class():
 #mannually implemented Tensor-vector multiplication with backward.
 class TT_forward(torch.autograd.Function):
     @staticmethod
+    @torch.jit.script
     def forward(ctx, matrix, *factors):
 
         with torch.no_grad():
@@ -77,6 +78,7 @@ class TT_forward(torch.autograd.Function):
 
        
     @staticmethod
+    @torch.jit.script
     def backward(ctx, dy):
         with torch.no_grad():
             factors = ctx.factors
