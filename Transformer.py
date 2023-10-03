@@ -7,7 +7,7 @@ def benchmark(model,input,iters):
     start = torch.cuda.Event(enable_timing=True)
     end = torch.cuda.Event(enable_timing=True)
 
-    with torch.autograd.profiler.profile():
+    with torch.cuda.profiler.profile():
         with torch.autograd.profiler.emit_nvtx():
     
             torch.cuda.synchronize()
