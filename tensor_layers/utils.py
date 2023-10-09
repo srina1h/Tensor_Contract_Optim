@@ -44,6 +44,8 @@ class TT_forward(torch.autograd.Function):
             saved_tensors = [matrix]
             left = []
             right = []
+            
+            matrix = torch.reshape(matrix,[matrix.shape[0]]+tt_shape_row)
 
             output = factors[0].reshape(-1, ranks[1])
             left.append(output)
@@ -51,8 +53,9 @@ class TT_forward(torch.autograd.Function):
             for core in factors[1:d]:
                 output = (torch.tensordot(output, core, dims=([-1], [0])))
                 left.append(output)
-
-            output = F.linear(matrix, torch.movedim(output.reshape(np.prod(tt_shape_row), -1), -1, 0))
+            
+        
+            output = torch.tensordot(matrix,output,[list(range(1,d+1)),list(range(d))])
 
 
             saved_tensors.append(left)
@@ -63,10 +66,12 @@ class TT_forward(torch.autograd.Function):
                 temp = (torch.tensordot(temp, core, dims=([-1], [0])))
                 right.append(temp)
 
+            out = torch.squeeze(temp)
 
             
-            output = F.linear(output, torch.movedim(temp.reshape(ranks[d], np.prod(tt_shape_col)),
-                                            0, -1)).reshape(matrix_cols, np.prod(tt_shape_col)).reshape(*out_shape)
+            
+            output = torch.tensordot(output,out,[[-1],[0]])
+            output = torch.reshape(output,out_shape)
         
             
             saved_tensors.append(right)
