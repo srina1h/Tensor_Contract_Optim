@@ -1,6 +1,8 @@
 import torch
 import numpy as np
 import torch.nn.functional as F
+import cupy
+from cupyx import cutensor
 
 class config_class():
     def __init__(self,
@@ -10,6 +12,9 @@ class config_class():
 
 #mannually implemented Tensor-vector multiplication with backward.
 class TT_forward(torch.autograd.Function):
+    def contract(a, b):
+        return 
+
     @staticmethod
     def forward(ctx, matrix, *factors):
 
@@ -51,7 +56,11 @@ class TT_forward(torch.autograd.Function):
             left.append(output)
 
             for core in factors[1:d]:
+                print(output.shape)
+                print(core.shape)
                 output = (torch.tensordot(output, core, dims=([-1], [0])))
+                print(output.shape)
+                # output = cutensor.contraction(output, core)
                 left.append(output)
             
         
