@@ -3,6 +3,7 @@ import numpy as np
 import torch.nn.functional as F
 import cupy
 from cupyx import cutensor
+import nvtx
 
 class config_class():
     def __init__(self,
@@ -85,7 +86,8 @@ class TT_forward(torch.autograd.Function):
                 desc_core = cutensor.create_tensor_descriptor(core)
                 desc_fop = cutensor.create_tensor_descriptor(final_output)
                 # output = (torch.tensordot(output, core, dims=([-1], [0])))
-                output = cutensor.contraction(1.0, output, desc_out, mode_op, 
+                with nvtx.annotate("tt_forward-tensordot1", color = "purple"):
+                    output = cutensor.contraction(1.0, output, desc_out, mode_op, 
                                               core, desc_core, mode_core,
                                               0.0, final_output, desc_fop, mode_c)
                 print(output.shape)
