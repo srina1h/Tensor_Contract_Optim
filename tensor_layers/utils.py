@@ -55,12 +55,12 @@ class TT_forward(torch.autograd.Function):
             loopflag = 0
 
             for core in factors[1:d]:
-                if loopflag == 0:
-                    output = cupy.array(output.cpu())
-                    core = cupy.array(core.cpu())
-                    loopflag = 1
-                else:
-                    core = cupy.array(core.cpu())
+                # if loopflag == 0:
+                output = cupy.array(output.cpu())
+                core = cupy.array(core.cpu())
+                loopflag = 1
+                # else:
+                #     core = cupy.array(core.cpu())
                 print(output.shape)
                 print(core.shape)
                 if len(output.shape) == 2:
@@ -89,9 +89,9 @@ class TT_forward(torch.autograd.Function):
                                               core, desc_core, mode_core,
                                               0.0, final_output, desc_fop, mode_c)
                 print(output.shape)
+                output = torch.from_numpy(cupy.asnumpy(output))
                 left.append(output)
-            
-            output = torch.from_numpy(cupy.asnumpy(output))
+
             output = output.to(matrix.get_device())
 
             output = torch.tensordot(matrix,output,[list(range(1,d+1)),list(range(d))])
