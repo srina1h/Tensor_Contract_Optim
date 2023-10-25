@@ -53,8 +53,9 @@ class TT_forward(torch.autograd.Function):
             left.append(output)
 
             for core in factors[1:d]:
-                output = cupy.array(output.cpu())
-                core = cupy.array(core.cpu())
+                if core != factors[1]:
+                    output = cupy.array(output.cpu())
+                    core = cupy.array(core.cpu())
                 print(output.shape)
                 print(core.shape)
                 if len(output.shape) == 2:
