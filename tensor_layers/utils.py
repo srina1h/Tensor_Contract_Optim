@@ -86,7 +86,7 @@ class TT_forward(torch.autograd.Function):
                 desc_core = cutensor.create_tensor_descriptor(core)
                 desc_fop = cutensor.create_tensor_descriptor(final_output)
                 # output = (torch.tensordot(output, core, dims=([-1], [0])))
-                with nvtx.annotate("tt_forward-tensordot1", color = "purple"):
+                with nvtx.annotate("tt_forward-ct-con-1", color = "purple"):
                     output = cutensor.contraction(1.0, output, desc_out, mode_op, 
                                               core, desc_core, mode_core,
                                               0.0, final_output, desc_fop, mode_c)
