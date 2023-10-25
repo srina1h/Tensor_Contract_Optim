@@ -93,6 +93,9 @@ class TT_forward(torch.autograd.Function):
             
             output = torch.from_numpy(cupy.asnumpy(output))
             output.to(matrix.get_device())
+
+            print(output.get_device())
+            print(matrix.get_device())
         
             output = torch.tensordot(matrix,output,[list(range(1,d+1)),list(range(d))])
 
