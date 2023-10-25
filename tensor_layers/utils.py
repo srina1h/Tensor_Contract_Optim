@@ -52,10 +52,13 @@ class TT_forward(torch.autograd.Function):
             output = factors[0].reshape(-1, ranks[1])
             left.append(output)
 
+            loopflag = 0
+
             for core in factors[1:d]:
-                if core != factors[1]:
+                if loopflag == 0:
                     output = cupy.array(output.cpu())
                     core = cupy.array(core.cpu())
+                    loopflag = 1
                 print(output.shape)
                 print(core.shape)
                 if len(output.shape) == 2:
