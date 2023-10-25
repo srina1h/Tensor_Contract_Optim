@@ -91,6 +91,7 @@ class TT_forward(torch.autograd.Function):
                 print(output.shape)
                 left.append(output)
             
+            output = torch.from_numpy(output)
         
             output = torch.tensordot(matrix,output,[list(range(1,d+1)),list(range(d))])
 
