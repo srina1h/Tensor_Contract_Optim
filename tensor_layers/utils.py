@@ -71,6 +71,8 @@ class TT_forward(torch.autograd.Function):
                     mode_c = ('a', 'b', 'd', 'e')
 
                 final_output = cupy.random.random([extent[i] for i in mode_c])
+                dtype = np.float32
+                final_output = final_output.astype(dtype)
                 mode_c = cutensor.create_mode(*mode_c)
                 #create tensor descriptors
                 desc_out = cutensor.create_tensor_descriptor(output)
