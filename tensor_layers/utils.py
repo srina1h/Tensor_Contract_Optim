@@ -55,9 +55,30 @@ class TT_forward(torch.autograd.Function):
             for core in factors[1:d]:
                 print(output.shape)
                 print(core.shape)
-                output = (torch.tensordot(output, core, dims=([-1], [0])))
+                if len(output.shape) == 2:
+                    mode_op = list(ord(c) for c in "ab")
+                    mode_core = list(ord(c) for c in "bcd")
+                    # mode_post_op = list(ord(c) for c in "acd")
+                    extent = {'a': output.shape[0], 'c': core.shape[1], 'd': core.shape[2]}
+                    mode_c = ('a', 'c', 'd')
+                elif len(output.shape) == 3:
+                    mode_op = list(ord(c) for c in "abc")
+                    mode_core = list(ord(c) for c in "cde")
+                    # mode_post_op = list(ord(c) for c in "abde")
+                    extent = {'a': output.shape[0], 'b': output.shape[1], 'd': core.shape[1], 'e': core.shape[2]}
+                    mode_c = ('a', 'b', 'd', 'e')
+
+                mode_c = cutensor.create_mode(*mode_c)
+                final_output = cupy.random.random([extent[i] for i in mode_c])
+                #create tensor descriptors
+                desc_out = cutensor.create_tensor_descriptor(out)
+                desc_core = cutensor.create_tensor_descriptor(core)
+                desc_fop = cutensor.create_tensor_descriptor(final_output)
+                # output = (torch.tensordot(output, core, dims=([-1], [0])))
                 print(output.shape)
-                # output = cutensor.contraction(output, core)
+                output = cutensor.contraction(1.0, output, desc_out, mode_op, 
+                                              core, desc_core, mode_core,
+                                              0.0, final_output, desc_fop, mode_c)
                 left.append(output)
             
         
@@ -112,21 +133,17 @@ class TT_forward(torch.autograd.Function):
             matrix_dy_core_prod = torch.tensordot(matrix, dy_core_prod, dims=([0], [0]))
 
             for i in reversed(range(1, d)):
-                grad = (torch.tensordot(left[i - 1].reshape(-1, ranks[i]),
-                                    matrix_dy_core_prod.reshape(np.prod(tt_shape_row[:i]), tt_shape_row[i], -1,
-                                                                ranks[d]),
-                                    dims=([0], [0])))
-                # print(grad.shape)
+                grad = (torch.tensordot(left[i - 1].reshape(-1, ranks[i]), matrix_dy_core_prod.reshape(np.prod(tt_shape_row[:i]), tt_shape_row[i], -1, ranks[d]), dims=([0], [0])))
                 if i == d - 1:
                     right_core = factors[i]
                 else:
                     grad = (torch.tensordot(grad, right_core, dims=([2, 3], [1, 2])))
-
                     right_core = torch.tensordot(factors[i], right_core,
                                                 dims=([-1], [0])).reshape(ranks[i], -1, ranks[d])
                 
                 if grad.shape != factors[i].shape:
                     grad = grad.reshape(list(factors[i].shape))
+
                 left_grads.append(grad)
             temp = (torch.tensordot(matrix_dy_core_prod.reshape(tt_shape_row[0], -1, ranks[d]),
                                             right_core, dims=([1, 2], [1, 2])).reshape(1, tt_shape_row[0], -1))
