@@ -92,6 +92,7 @@ class TT_forward(torch.autograd.Function):
                 left.append(output)
             
             output = torch.from_numpy(cupy.asnumpy(output))
+            output.cuda()
         
             output = torch.tensordot(matrix,output,[list(range(1,d+1)),list(range(d))])
 
