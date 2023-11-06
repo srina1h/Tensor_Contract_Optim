@@ -89,7 +89,7 @@ class TT_forward(torch.autograd.Function):
                 with nvtx.annotate("tt_forward-ct-con-1", color = "purple"):
                     output = cutensor.contraction(1.0, output, desc_out, mode_op, 
                                               core, desc_core, mode_core,
-                                              0.0, final_output, desc_fop, mode_c)
+                                              0.0, final_output, desc_fop, mode_c, algo = "ttgt")
                 print(output.shape)
                 output = torch.from_numpy(cupy.asnumpy(output))
                 output = output.to(matrix.get_device())
