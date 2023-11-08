@@ -54,9 +54,7 @@ class TT_forward(torch.autograd.Function):
                 output = (torch.tensordot(output, core, dims=([-1], [0])))
                 left.append(output)
             
-        
             output = torch.tensordot(matrix,output,[list(range(1,d+1)),list(range(d))])
-
 
             saved_tensors.append(left)
 
@@ -68,9 +66,12 @@ class TT_forward(torch.autograd.Function):
 
             out = torch.squeeze(temp)
 
-            
-            
+            # torch.cuda.cudart().cudaProfilerStart()
+            print(output.shape)
+            print(out.shape)
             output = torch.tensordot(output,out,[[-1],[0]])
+            print(output.shape)
+             # torch.cuda.cudart().cudaProfilerStop()
             output = torch.reshape(output,out_shape)
         
             
