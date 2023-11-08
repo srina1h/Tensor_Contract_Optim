@@ -93,7 +93,7 @@ class TT_forward(torch.autograd.Function):
             with nvtx.annotate("tt_forward-ct-con-2", color = "purple"):
                     output = cutensor.contraction(1.0, output, desc_output, mode_op, 
                                               out, desc_out, mode_out,
-                                              0.0, final_output, desc_fop, mode_c)
+                                              0.0, final_output, desc_fop, mode_c, algo = -4)
             torch.cuda.cudart().cudaProfilerStop()
 
             print(output.shape)
