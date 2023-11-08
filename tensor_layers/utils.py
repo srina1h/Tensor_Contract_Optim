@@ -66,12 +66,36 @@ class TT_forward(torch.autograd.Function):
 
             out = torch.squeeze(temp)
 
-            # torch.cuda.cudart().cudaProfilerStart()
             print(output.shape)
             print(out.shape)
-            output = torch.tensordot(output,out,[[-1],[0]])
+            output = cupy.array(output.cpu())
+            out = cupy.array(out.cpu())
+            mode_op = list(ord(c) for c in "ab")
+            mode_out = list(ord(c) for c in "bcde")
+
+            extent = {'a': output.shape[0], 'c': out.shape[1], 'd': out.shape[2], 'e': out.shape[3]}
+            mode_c = ('a', 'c', 'd', 'e')
+
+            final_output = cupy.random.random([extent[i] for i in mode_c])
+            dtype = np.float32
+            final_output = final_output.astype(dtype)
+            mode_c = cutensor.create_mode(*mode_c)
+
+            desc_output = cutensor.create_tensor_descriptor(output)
+            desc_out = cutensor.create_tensor_descriptor(out)
+            desc_fop = cutensor.create_tensor_descriptor(final_output)
+            # output = torch.tensordot(output,out,[[-1],[0]])
+
+            torch.cuda.cudart().cudaProfilerStart()
+            with nvtx.annotate("tt_forward-ct-con-2", color = "purple"):
+                    output = cutensor.contraction(1.0, output, desc_out, mode_op, 
+                                              out, desc_out, mode_out,
+                                              0.0, final_output, desc_fop, mode_c)
+            torch.cuda.cudart().cudaProfilerStop()
+
             print(output.shape)
-             # torch.cuda.cudart().cudaProfilerStop()
+            output = torch.from_numpy(cupy.asnumpy(output))
+            output = output.to(matrix.get_device())
             output = torch.reshape(output,out_shape)
         
             
