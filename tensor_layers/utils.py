@@ -54,7 +54,7 @@ class TT_forward(torch.autograd.Function):
             left.append(output)
 
             loopflag = 0
-            # torch.cuda.cudart().cudaProfilerStart()
+            torch.cuda.cudart().cudaProfilerStart()
             for core in factors[1:d]:
                 # if loopflag == 0:
                 output = cupy.array(output.cpu())
@@ -96,7 +96,7 @@ class TT_forward(torch.autograd.Function):
                 left.append(output)
                 loopflag += 1
 
-            # torch.cuda.cudart().cudaProfilerStop()
+            torch.cuda.cudart().cudaProfilerStop()
 
             output = torch.tensordot(matrix,output,[list(range(1,d+1)),list(range(d))])
 

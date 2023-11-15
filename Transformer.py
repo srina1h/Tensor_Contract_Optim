@@ -12,11 +12,7 @@ def benchmark(model,input,iters):
     torch.cuda.synchronize()
     st = time.time()
     for i in range(iters):
-        if i == 0:
-            torch.cuda.cudart().cudaProfilerStart()
         y = model(input)
-        if i == 0:
-            torch.cuda.cudart().cudaProfilerStop()
         y = torch.sum(y**2)
         y.backward()
         model.zero_grad()
