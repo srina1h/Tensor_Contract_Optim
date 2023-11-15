@@ -59,9 +59,9 @@ class TT_forward(torch.autograd.Function):
                 # if loopflag == 0:
                 output = cupy.array(output.cpu())
                 core = cupy.array(core.cpu())
-                loopflag = 1
                 # else:
                 #     core = cupy.array(core.cpu())
+                print(loopflag)
                 print(output.shape)
                 print(core.shape)
                 if len(output.shape) == 2:
@@ -86,7 +86,7 @@ class TT_forward(torch.autograd.Function):
                 desc_core = cutensor.create_tensor_descriptor(core)
                 desc_fop = cutensor.create_tensor_descriptor(final_output)
                 # output = (torch.tensordot(output, core, dims=([-1], [0])))
-                with nvtx.annotate("tt_forward-ct-con-1", color = "purple"):
+                with nvtx.annotate("tt_forward-ct-con-1-loop"+str(loopflag), color = "purple"):
                     output = cutensor.contraction(1.0, output, desc_out, mode_op, 
                                               core, desc_core, mode_core,
                                               0.0, final_output, desc_fop, mode_c, algo = 1)
