@@ -94,6 +94,7 @@ class TT_forward(torch.autograd.Function):
                 output = torch.from_numpy(cupy.asnumpy(output))
                 output = output.to(matrix.get_device())
                 left.append(output)
+                loopflag += 1
 
             torch.cuda.cudart().cudaProfilerStop()
 
