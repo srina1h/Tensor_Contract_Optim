@@ -68,10 +68,7 @@ class TT_forward(torch.autograd.Function):
 
             out = torch.squeeze(temp)
 
-            print(output.shape)
-            print(out.shape)
             output = torch.tensordot(output,out,[[-1],[0]])
-            print(output.shape)
             output = torch.reshape(output,out_shape)
         
             
@@ -112,9 +109,10 @@ class TT_forward(torch.autograd.Function):
         
             dy_core_prod = (torch.tensordot(dy, dy_core_prod.reshape(dy_core_prod.shape[0], -1), dims=([1], [1])))
 
-
+            print(matrix.shape)
+            print(dy_core_prod.shape)
             matrix_dy_core_prod = torch.tensordot(matrix, dy_core_prod, dims=([0], [0]))
-
+            print(matrix_dy_core_prod.shape)
 
             for i in reversed(range(1, d)):
                 grad = (torch.tensordot(left[i - 1].reshape(-1, ranks[i]),
