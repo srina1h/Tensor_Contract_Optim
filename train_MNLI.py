@@ -32,27 +32,30 @@ def main():
     
     for epoch in range(1):
 
-        start = time.time()
-        train_loss, train_accu = train_epoch(transformer, training_data, optimizer,config_forward=config_forward)
+        with torch.cuda.profiler.profile():
+            with torch.autograd.profiler.emit_nvtx():
 
-        valid_loss, valid_accu = eval_epoch(transformer, validation_data, device,config_forward=config_forward)
+                start = time.time()
+                train_loss, train_accu = train_epoch(transformer, training_data, optimizer,config_forward=config_forward)
+
+                valid_loss, valid_accu = eval_epoch(transformer, validation_data, device,config_forward=config_forward)
 
 
 
-        
-        print('')
-        print('epoch = ', epoch)
-        
-        print('  - (Training)   loss: {loss: 8.5f}, loss_hard: {loss_new: 8.5f}, accuracy: {accu:3.3f} %, '\
-            'elapse: {elapse:3.3f} min'.format(
-                loss=train_loss, loss_new=train_loss, accu=100*train_accu,
-                elapse=(time.time()-start)/60))
-        start = time.time()
-        
-        print('  - (Validation) loss: {loss: 8.5f}, accuracy: {accu:3.3f} %, '\
-                'elapse: {elapse:3.3f} min'.format(
-                    loss=valid_loss, accu=100*valid_accu,
-                    elapse=(time.time()-start)/60))
+                
+                print('')
+                print('epoch = ', epoch)
+                
+                print('  - (Training)   loss: {loss: 8.5f}, loss_hard: {loss_new: 8.5f}, accuracy: {accu:3.3f} %, '\
+                    'elapse: {elapse:3.3f} min'.format(
+                        loss=train_loss, loss_new=train_loss, accu=100*train_accu,
+                        elapse=(time.time()-start)/60))
+                start = time.time()
+                
+                print('  - (Validation) loss: {loss: 8.5f}, accuracy: {accu:3.3f} %, '\
+                        'elapse: {elapse:3.3f} min'.format(
+                            loss=valid_loss, accu=100*valid_accu,
+                            elapse=(time.time()-start)/60))
 
 
 ############# Prepare Dataset ################################
