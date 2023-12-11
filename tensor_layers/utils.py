@@ -68,9 +68,10 @@ class TT_forward(torch.autograd.Function):
 
             out = torch.squeeze(temp)
 
-            
-            
+            print(output.shape)
+            print(out.shape)
             output = torch.tensordot(output,out,[[-1],[0]])
+            print(output.shape)
             output = torch.reshape(output,out_shape)
         
             
