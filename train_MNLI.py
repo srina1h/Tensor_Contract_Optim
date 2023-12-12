@@ -16,8 +16,6 @@ from tensor_layers.Transformer_tensor import Transformer_classification
 
 from transformers import BertTokenizer
 
-import nvtx
-
 
 def main():
     device = 'cuda'
@@ -36,9 +34,9 @@ def main():
 
         torch.cuda.cudart().cudaProfilerStart()
         start = time.time()
-        nvtx.range_push("epoch")
+        torch.cuda.nvtx.range_push("epoch")
         train_loss, train_accu = train_epoch(transformer, training_data, optimizer,config_forward=config_forward)
-        nvtx.range_pop()
+        torch.cuda.nvtx.range_pop()
         torch.cuda.cudart().cudaProfilerStop()
         valid_loss, valid_accu = eval_epoch(transformer, validation_data, device,config_forward=config_forward)
         print('')
