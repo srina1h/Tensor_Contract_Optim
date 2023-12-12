@@ -32,30 +32,26 @@ def main():
     
     for epoch in range(1):
 
-        with torch.cuda.profiler.profile():
-            with torch.autograd.profiler.emit_nvtx():
-
-                start = time.time()
-                train_loss, train_accu = train_epoch(transformer, training_data, optimizer,config_forward=config_forward)
-
-                valid_loss, valid_accu = eval_epoch(transformer, validation_data, device,config_forward=config_forward)
-
-
-
-                
-                print('')
-                print('epoch = ', epoch)
-                
-                print('  - (Training)   loss: {loss: 8.5f}, loss_hard: {loss_new: 8.5f}, accuracy: {accu:3.3f} %, '\
-                    'elapse: {elapse:3.3f} min'.format(
-                        loss=train_loss, loss_new=train_loss, accu=100*train_accu,
-                        elapse=(time.time()-start)/60))
-                start = time.time()
-                
-                print('  - (Validation) loss: {loss: 8.5f}, accuracy: {accu:3.3f} %, '\
-                        'elapse: {elapse:3.3f} min'.format(
-                            loss=valid_loss, accu=100*valid_accu,
-                            elapse=(time.time()-start)/60))
+        torch.cuda.cudart().cudaProfilerStart()
+        start = time.time()
+        torch.nvtx.range_push("epoch")
+        train_loss, train_accu = train_epoch(transformer, training_data, optimizer,config_forward=config_forward)
+        torch.nvtx.range_pop()
+        torch.cuda.cudart().cudaProfilerStop()
+        valid_loss, valid_accu = eval_epoch(transformer, validation_data, device,config_forward=config_forward)
+        print('')
+        print('epoch = ', epoch)
+        
+        print('  - (Training)   loss: {loss: 8.5f}, loss_hard: {loss_new: 8.5f}, accuracy: {accu:3.3f} %, '\
+            'elapse: {elapse:3.3f} min'.format(
+                loss=train_loss, loss_new=train_loss, accu=100*train_accu,
+                elapse=(time.time()-start)/60))
+        start = time.time()
+        
+        print('  - (Validation) loss: {loss: 8.5f}, accuracy: {accu:3.3f} %, '\
+                'elapse: {elapse:3.3f} min'.format(
+                    loss=valid_loss, accu=100*valid_accu,
+                    elapse=(time.time()-start)/60))
 
 
 ############# Prepare Dataset ################################
