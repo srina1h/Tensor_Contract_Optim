@@ -81,7 +81,7 @@ model = Transformer_classification(config_model,config_classification).to(device
 
 input = torch.randint(0,30000,(32,128)).to(device)
 
-benchmark(model,input,100)
+benchmark(model,input,1)
 
 
 
