@@ -150,7 +150,7 @@ class TT_forward(torch.autograd.Function):
             
             print("back-tdot3")
             print(matrix_dy_core_prod.shape)
-            print(matrix_dy_core_prod.reshape(tt_shape_row[0], -1, ranks[d]))
+            print(matrix_dy_core_prod.reshape(tt_shape_row[0], -1, ranks[d]).shape)
             print(right_core.shape)
             temp = (torch.tensordot(matrix_dy_core_prod.reshape(tt_shape_row[0], -1, ranks[d]),
                                             right_core, dims=([1, 2], [1, 2])).reshape(1, tt_shape_row[0], -1))
@@ -179,9 +179,9 @@ class TT_forward(torch.autograd.Function):
             for i in reversed(range(1, d)):
                 print("back-tdot-loop2"+str(i))
                 print(right[i - 1].shape)
-                print(right[i - 1].reshape(-1, ranks[d + i]))
+                print(right[i - 1].reshape(-1, ranks[d + i]).shape)
                 print(matrix_dy_core_prod.shape)
-                print(matrix_dy_core_prod.reshape(-1, tt_shape_col[i], int(np.prod(tt_shape_col[i + 1:]))))
+                print(matrix_dy_core_prod.reshape(-1, tt_shape_col[i], int(np.prod(tt_shape_col[i + 1:]))).shape)
                 grad = (torch.tensordot(right[i - 1].reshape(-1, ranks[d + i]),
                                     matrix_dy_core_prod.reshape(-1, tt_shape_col[i], int(np.prod(tt_shape_col[i + 1:]))),
                                     dims=([0], [0])))
