@@ -120,7 +120,7 @@ class TT_forward(torch.autograd.Function):
             print(matrix_dy_core_prod.shape)
 
             for i in reversed(range(1, d)):
-                print("back-tdot-loop1"+i)
+                print("back-tdot-loop1"+str(i))
                 print(left[i - 1].shape)
                 print(left[i - 1].reshape(-1, ranks[i]))
                 print(matrix_dy_core_prod.reshape(np.prod(tt_shape_row[:i]), tt_shape_row[i], -1, ranks[d]))
@@ -132,7 +132,7 @@ class TT_forward(torch.autograd.Function):
                 if i == d - 1:
                     right_core = factors[i]
                 else:
-                    print("back-tdot-loop-else"+i)
+                    print("back-tdot-loop-else"+str(i))
                     print(grad.shape)
                     print(right_core.shape)
                     grad = (torch.tensordot(grad, right_core, dims=([2, 3], [1, 2])))
@@ -177,7 +177,7 @@ class TT_forward(torch.autograd.Function):
             print(matrix_dy_core_prod.shape)
 
             for i in reversed(range(1, d)):
-                print("back-tdot-loop2"+i)
+                print("back-tdot-loop2"+str(i))
                 print(right[i - 1].shape)
                 print(right[i - 1].reshape(-1, ranks[d + i]))
                 print(matrix_dy_core_prod.shape)
@@ -189,13 +189,13 @@ class TT_forward(torch.autograd.Function):
                 if i == d - 1:
                     right_core = factors[d + i].reshape(-1, tt_shape_col[i])
                 else:
-                    print("back-tdot-loop2-else"+i)
+                    print("back-tdot-loop2-else"+str(i))
                     print(grad.shape)
                     print(right_core.shape)
                     grad = (torch.tensordot(grad, right_core, dims=([-1], [1])))
                     print(grad.shape)
 
-                    print("back-tdot-loop2-else2"+i)
+                    print("back-tdot-loop2-else2"+str(i))
                     print(factors[d + i].shape)
                     print(right_core.shape)
                     right_core = (torch.tensordot(factors[d + i], right_core, dims=([-1], [0])).reshape(ranks[d + i],-1))
