@@ -226,7 +226,7 @@ class TT_forward(torch.autograd.Function):
             print("back-tdot7")
             print(dy.shape)
             print(dx.shape)
-            print(dx.reshape(-1, np.prod(tt_shape_col).shape))
+            print(dx.reshape(-1, np.prod(tt_shape_col)).shape)
             dx = (torch.tensordot(dy, dx.reshape(-1, np.prod(tt_shape_col)), dims=([-1], [-1])))
             print(dx.shape)
 
