@@ -165,7 +165,7 @@ class TT_forward(torch.autograd.Function):
             print("back-tdot4")
             print(matrix_core_prod.shape)
             print(matrix_core_prod.reshape(-1, ranks[d]).shape)
-            print(dy.shape)
+            print(matrix.shape)
             matrix_core_prod = (torch.tensordot(matrix_core_prod.reshape(-1, matrix_core_prod.shape[-1]),
                                             matrix, dims=([0], [1])))
             print(matrix_core_prod.shape)
