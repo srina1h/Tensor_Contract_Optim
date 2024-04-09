@@ -186,7 +186,7 @@ class TT_forward(torch.autograd.Function):
 
 
                     # right_core = (torch.tensordot(factors[d + i], right_core, dims=([-1], [0])).reshape(ranks[d + i],-1))
-                    con = contraction_handler(factors[d + i], right_core, dims=([-1], [0]))
+                    con = contraction_handler(factors[d + i], right_core, ([-1], [0]))
                     right_core = (con.perform_contraction().reshape(ranks[d + i],-1))
                                                                                                                                                                             
                 if grad.shape != factors[d + i].shape:
