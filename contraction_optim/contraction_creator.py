@@ -33,7 +33,7 @@ class contraction_handler:
         self.extents = self.set_extents(self.a.size(), self.b.size(), self.mode_a, self.mode_b)
 
         self.c = self.create_C().astype(cp.float32)
-        print(self.a.dtype)
+        # print(self.a.dtype)
 
         # Perform the contraction
         output = cutensor.contraction(self.alpha_val, cp.from_dlpack((self.a).detach()), self.mode_a, cp.from_dlpack((self.b).detach()), self.mode_b, self.beta_val, self.c, self.mode_c, algo = self.contraction_algorithm)
