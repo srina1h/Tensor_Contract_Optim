@@ -1,4 +1,4 @@
-from torch import tensor
+from torch import tensor, as_tensor
 import cupy as cp
 from cupyx import cutensor
 import platform
@@ -36,7 +36,7 @@ class contraction_handler:
 
         # Perform the contraction
         output = cutensor.contraction(self.alpha_val, cp.asarray(self.a), self.mode_a, cp.asarray(self.b), self.mode_b, self.beta_val, self.c, self.mode_c, algo = self.contraction_algorithm)
-        return output
+        return as_tensor(output, device='cuda')
     
     def construct_einstein_notation(self, aNoDim: int, bNoDim: int, contraction_indices: tuple[list, list]):
         indices = 'abcdefghijklmnopqrstuvwxyz'
