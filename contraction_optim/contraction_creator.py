@@ -1,4 +1,4 @@
-from torch
+import torch
 import cupy as cp
 from cupyx import cutensor
 import platform
