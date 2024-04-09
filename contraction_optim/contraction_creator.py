@@ -1,5 +1,5 @@
 from torch import tensor
-import cupy
+import cupy as cp
 from cupyx import cutensor
 import platform
 
@@ -35,7 +35,7 @@ class contraction_handler:
         self.c = self.create_C()
 
         # Perform the contraction
-        output = cutensor.contraction(self.alpha_val, self.a, self.mode_a, self.b, self.mode_b, self.beta_val, self.c, self.mode_c, algo = self.contraction_algorithm)
+        output = cutensor.contraction(self.alpha_val, cp.asarray(self.a), self.mode_a, cp.asarray(self.b), self.mode_b, self.beta_val, self.c, self.mode_c, algo = self.contraction_algorithm)
         return output
     
     def construct_einstein_notation(self, aNoDim: int, bNoDim: int, contraction_indices: tuple[list, list]):
