@@ -56,7 +56,7 @@ class TT_forward(torch.autograd.Function):
             for core in factors[1:d]:
                 # output = (torch.tensordot(output, core, dims=([-1], [0])))
                 con = contraction_handler(output, core, ([-1], [0]))
-                output = con.perform_contraction()
+                output = (con.perform_contraction())
                 left.append(output)
             
         
