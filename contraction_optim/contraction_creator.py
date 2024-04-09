@@ -42,10 +42,6 @@ class contraction_handler:
         # if self.debug:
             # print(self.c.shape)
 
-        # Checking if the input tensors are contiguous
-        if self.debug:
-            print(self.a.is_contiguous())
-            print(self.b.is_contiguous())
         # Perform the contraction
         output = cutensor.contraction(self.alpha_val, cp.from_dlpack((self.a.contiguous()).detach()), self.mode_a, cp.from_dlpack((self.b.contiguous()).detach()), self.mode_b, self.beta_val, self.c, self.mode_c, algo = self.contraction_algorithm)
         return torch.from_dlpack(output)
