@@ -32,7 +32,7 @@ class contraction_handler:
         self.set_modes(einstein_notation)
         self.extents = self.set_extents(self.a.size(), self.b.size(), self.mode_a, self.mode_b)
 
-        self.c = self.create_C().astype(cp.float16)
+        self.c = self.create_C().astype(cp.float32)
         print(self.a.dtype)
 
         # Perform the contraction
