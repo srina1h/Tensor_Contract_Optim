@@ -14,13 +14,14 @@ PERMANENT_ALGO_NUMBER = -3
 # ALGO_DEFAULT = -1          # NOQA, Lets the internal heuristic choose
 
 class contraction_handler:
-    def __init__(self, a: torch.tensor, b: torch.tensor, contraction_indices: tuple[list, list], alpha_val: float = PERMANENT_ALPHA, beta_val: float = PERMANENT_BETA, contraction_algorithm=PERMANENT_ALGO_NUMBER):
+    def __init__(self, a: torch.tensor, b: torch.tensor, contraction_indices: tuple[list, list], alpha_val: float = PERMANENT_ALPHA, beta_val: float = PERMANENT_BETA, contraction_algorithm=PERMANENT_ALGO_NUMBER, debug = False):
         self.a = a
         self.b = b
         self.contraction_indices = contraction_indices
         self.alpha_val = alpha_val
         self.beta_val = beta_val
         self.contraction_algorithm = contraction_algorithm
+        self.debug = debug
 
     def perform_contraction(self):
         # Get the dimensions of the tensors
@@ -29,7 +30,8 @@ class contraction_handler:
 
         # Construct the Einstein notation
         einstein_notation = self.construct_einstein_notation(aNoDim, bNoDim, self.contraction_indices)
-        print(einstein_notation)
+        if self.debug:
+            print(einstein_notation)
         self.set_modes(einstein_notation)
         self.extents = self.set_extents(self.a.size(), self.b.size(), self.mode_a, self.mode_b)
 

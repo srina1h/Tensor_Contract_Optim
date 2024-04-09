@@ -61,7 +61,7 @@ class TT_forward(torch.autograd.Function):
             
         
             # output = torch.tensordot(matrix,output,[list(range(1,d+1)),list(range(d))])
-            con = contraction_handler(matrix, output, [list(range(1,d+1)),list(range(d))])
+            con = contraction_handler(matrix, output, [list(range(1,d+1)),list(range(d))], debug = True)
             print(matrix.shape,output.shape, [list(range(1,d+1)),list(range(d))])
             output = con.perform_contraction()
 
