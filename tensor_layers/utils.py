@@ -80,7 +80,7 @@ class TT_forward(torch.autograd.Function):
             
             
             # output = torch.tensordot(output,out,[[-1],[0]])
-            con = contraction_handler(output,out,[[-1],[0]])
+            con = contraction_handler(output,out,([-1],[0]))
             temp = (con.perform_contraction())
             output = torch.reshape(output,out_shape)
         
