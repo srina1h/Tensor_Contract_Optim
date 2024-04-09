@@ -1,4 +1,4 @@
-import torch.tensor
+from torch import tensor
 import cupy
 from cupyx import cutensor
 import platform
@@ -14,7 +14,7 @@ PERMANENT_ALGO_NUMBER = -3
 # ALGO_DEFAULT = -1          # NOQA, Lets the internal heuristic choose
 
 class contraction_handler:
-    def __init__(self, a: torch.tensor, b: torch.tensor, contraction_indices: tuple[list, list], alpha_val: float = PERMANENT_ALPHA, beta_val: float = PERMANENT_BETA, contraction_algorithm=PERMANENT_ALGO_NUMBER):
+    def __init__(self, a: tensor, b: tensor, contraction_indices: tuple[list, list], alpha_val: float = PERMANENT_ALPHA, beta_val: float = PERMANENT_BETA, contraction_algorithm=PERMANENT_ALGO_NUMBER):
         self.a = a
         self.b = b
         self.contraction_indices = contraction_indices
