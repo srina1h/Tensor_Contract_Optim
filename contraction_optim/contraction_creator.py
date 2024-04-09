@@ -29,6 +29,7 @@ class contraction_handler:
 
         # Construct the Einstein notation
         einstein_notation = self.construct_einstein_notation(aNoDim, bNoDim, self.contraction_indices)
+        print(einstein_notation)
         self.set_modes(einstein_notation)
         self.extents = self.set_extents(self.a.size(), self.b.size(), self.mode_a, self.mode_b)
 
