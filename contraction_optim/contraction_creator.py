@@ -90,7 +90,7 @@ class contraction_handler:
         self.mode_c = tuple([k for k in C.split()[0]])
     
     def create_C(self):
-        return cupy.zeros([self.extents[i] for i in self.mode_c])
+        return cp.zeros([self.extents[i] for i in self.mode_c])
     
     def set_extents(self, adim, bdim, mode_a, mode_b) -> dict:
         extent_a = {}
