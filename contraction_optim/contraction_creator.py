@@ -34,7 +34,7 @@ class contraction_handler:
             print(einstein_notation)
         self.set_modes(einstein_notation)
         self.extents = self.set_extents(self.a.size(), self.b.size(), self.mode_a, self.mode_b)
-        if debug:
+        if self.debug:
             print(self.extents)
 
         self.c = self.create_C().astype(cp.float32)
