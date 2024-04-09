@@ -35,7 +35,7 @@ class contraction_handler:
         self.c = self.create_C()
 
         # Perform the contraction
-        output = cutensor.contraction(self.alpha_val, cp.from_dlpack(self.a), self.mode_a, cp.from_dlpack(self.b), self.mode_b, self.beta_val, self.c, self.mode_c, algo = self.contraction_algorithm)
+        output = cutensor.contraction(self.alpha_val, cp.from_dlpack((self.a).detach()), self.mode_a, cp.from_dlpack((self.b).detach()), self.mode_b, self.beta_val, self.c, self.mode_c, algo = self.contraction_algorithm)
         return torch.from_dlpack(output)
     
     def construct_einstein_notation(self, aNoDim: int, bNoDim: int, contraction_indices: tuple[list, list]):
