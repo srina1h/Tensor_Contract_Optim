@@ -1,4 +1,4 @@
-from torch import tensor, as_tensor
+from torch
 import cupy as cp
 from cupyx import cutensor
 import platform
@@ -14,7 +14,7 @@ PERMANENT_ALGO_NUMBER = -3
 # ALGO_DEFAULT = -1          # NOQA, Lets the internal heuristic choose
 
 class contraction_handler:
-    def __init__(self, a: tensor, b: tensor, contraction_indices: tuple[list, list], alpha_val: float = PERMANENT_ALPHA, beta_val: float = PERMANENT_BETA, contraction_algorithm=PERMANENT_ALGO_NUMBER):
+    def __init__(self, a: torch.tensor, b: torch.tensor, contraction_indices: tuple[list, list], alpha_val: float = PERMANENT_ALPHA, beta_val: float = PERMANENT_BETA, contraction_algorithm=PERMANENT_ALGO_NUMBER):
         self.a = a
         self.b = b
         self.contraction_indices = contraction_indices
@@ -36,7 +36,7 @@ class contraction_handler:
 
         # Perform the contraction
         output = cutensor.contraction(self.alpha_val, cp.asarray(self.a), self.mode_a, cp.asarray(self.b), self.mode_b, self.beta_val, self.c, self.mode_c, algo = self.contraction_algorithm)
-        return as_tensor(output, device='cuda')
+        return torch.as_tensor(output, device='cuda')
     
     def construct_einstein_notation(self, aNoDim: int, bNoDim: int, contraction_indices: tuple[list, list]):
         indices = 'abcdefghijklmnopqrstuvwxyz'
