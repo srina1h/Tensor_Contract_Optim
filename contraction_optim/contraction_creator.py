@@ -22,7 +22,7 @@ class contraction_handler:
         self.beta_val = beta_val
         self.contraction_algorithm = contraction_algorithm
 
-    def peform_contraction(self):
+    def perform_contraction(self):
         # Get the dimensions of the tensors
         aNoDim = len(self.a.shape)
         bNoDim = len(self.b.shape)
