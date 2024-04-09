@@ -1,6 +1,9 @@
 import torch
 import numpy as np
 import torch.nn.functional as F
+import cupy as cp
+from cupyx import cutensor
+from contraction_optim.contraction_creator import contraction_handler
 
 class config_class():
     def __init__(self,
@@ -51,7 +54,9 @@ class TT_forward(torch.autograd.Function):
             left.append(output)
 
             for core in factors[1:d]:
-                output = (torch.tensordot(output, core, dims=([-1], [0])))
+                # output = (torch.tensordot(output, core, dims=([-1], [0])))
+                con = contraction_handler(output, core, ([-1], [0]))
+                output = con.perform_contraction()
                 left.append(output)
             
         
