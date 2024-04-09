@@ -30,19 +30,22 @@ class contraction_handler:
 
         # Construct the Einstein notation
         einstein_notation = self.construct_einstein_notation(aNoDim, bNoDim, self.contraction_indices)
-        if self.debug:
-            print(einstein_notation)
+        # if self.debug:
+            # print(einstein_notation)
         self.set_modes(einstein_notation)
         self.extents = self.set_extents(self.a.size(), self.b.size(), self.mode_a, self.mode_b)
-        if self.debug:
-            print(self.extents)
+        # if self.debug:
+            # print(self.extents)
 
         self.c = self.create_C().astype(cp.float32)
 
-        if self.debug:
-            # print(self.c)
-            print(self.c.shape)
+        # if self.debug:
+            # print(self.c.shape)
 
+        # Checking if the input tensors are contiguous
+        if self.debug:
+            print(self.a.is_contiguous())
+            print(self.b.is_contiguous())
         # Perform the contraction
         output = cutensor.contraction(self.alpha_val, cp.from_dlpack((self.a).detach()), self.mode_a, cp.from_dlpack((self.b).detach()), self.mode_b, self.beta_val, self.c, self.mode_c, algo = self.contraction_algorithm)
         return torch.from_dlpack(output)
