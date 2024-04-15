@@ -15,7 +15,7 @@ class config_class():
 class TT_forward(torch.autograd.Function):
     @staticmethod
     def forward(ctx, matrix, *factors):
-        ctx.requires_grad_(False)
+        # ctx.requires_grad_(False)
         matrix.requires_grad_(False)
         for i in factors:
             i.requires_grad_(False)
