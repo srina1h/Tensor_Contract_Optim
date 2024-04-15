@@ -18,11 +18,17 @@ def benchmark(model,input,iters):
         y.backward()
         model.zero_grad()
         torch.cuda.synchronize()
-    torch.cuda.synchronize()
+    # torch.cuda.synchronize()
     ed = time.time()
     t = (ed-st)*100/iters
     
     print("{t:.2f}s per 100 iteration".format(t=t))
+
+    with torch.no_grad():
+        st = time.time()
+        model(input)
+        ed = time.time()
+    print(str((ed-st)*100)+" inf time")
 
 device = 'cuda'
 
@@ -82,6 +88,8 @@ model = Transformer_classification(config_model,config_classification).to(device
 input = torch.randint(0,30000,(32,128)).to(device)
 
 benchmark(model,input,100)
+
+
 
 
 
