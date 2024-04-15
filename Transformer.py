@@ -10,21 +10,21 @@ def benchmark(model,input,iters):
     
     
     torch.cuda.synchronize()
-    
-    st = time.time()
-    for i in range(iters):
-        y = model(input)
-        y = torch.sum(y**2)
-        y.backward()
-        model.zero_grad()
-        torch.cuda.synchronize()
-    # torch.cuda.synchronize()
-    ed = time.time()
-    t = (ed-st)*100/iters
-    
-    print("{t:.2f}s per 100 iteration".format(t=t))
-
     with torch.no_grad():
+        st = time.time()
+        for i in range(iters):
+            y = model(input)
+            y = torch.sum(y**2)
+            y.backward()
+            model.zero_grad()
+            torch.cuda.synchronize()
+        # torch.cuda.synchronize()
+        ed = time.time()
+        t = (ed-st)*100/iters
+        
+        print("{t:.2f}s per 100 iteration".format(t=t))
+
+    
         st = time.time()
         model(input)
         ed = time.time()
