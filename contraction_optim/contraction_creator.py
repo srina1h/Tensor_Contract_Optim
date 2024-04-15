@@ -43,14 +43,13 @@ class contraction_handler:
             # print(self.c.shape)
 
         # Perform the contraction
-        with torch.no_grad():
             # print(torch.is_grad_enabled())
-            if torch.is_grad_enabled():
-                output = cutensor.contraction(self.alpha_val, cp.from_dlpack((self.a.contiguous()).detach()), self.mode_a, cp.from_dlpack((self.b.contiguous()).detach()), self.mode_b, self.beta_val, self.c, self.mode_c, algo = self.contraction_algorithm)
-                return torch.from_dlpack(output).requires_grad_(True)
-            else:
-                output = cutensor.contraction(self.alpha_val, cp.from_dlpack((self.a.contiguous())), self.mode_a, cp.from_dlpack((self.b.contiguous())), self.mode_b, self.beta_val, self.c, self.mode_c, algo = self.contraction_algorithm)
-                return torch.from_dlpack(output)
+        if torch.is_grad_enabled():
+            output = cutensor.contraction(self.alpha_val, cp.from_dlpack((self.a.contiguous()).detach()), self.mode_a, cp.from_dlpack((self.b.contiguous()).detach()), self.mode_b, self.beta_val, self.c, self.mode_c, algo = self.contraction_algorithm)
+            return torch.from_dlpack(output).requires_grad_(True)
+        else:
+            output = cutensor.contraction(self.alpha_val, cp.from_dlpack((self.a.contiguous())), self.mode_a, cp.from_dlpack((self.b.contiguous())), self.mode_b, self.beta_val, self.c, self.mode_c, algo = self.contraction_algorithm)
+            return torch.from_dlpack(output)
 
     def construct_einstein_notation(self, aNoDim: int, bNoDim: int, contraction_indices: tuple[list, list]):
         indices = 'abcdefghijklmnopqrstuvwxyz'
