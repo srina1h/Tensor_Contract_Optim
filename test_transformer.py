@@ -66,4 +66,4 @@ with torch.no_grad():
     st = time.time()
     model(input)
     ed = time.time()
-    print(str((ed-st)*100)+" inf time")
+    print(str((ed-st))+"s inf time")
