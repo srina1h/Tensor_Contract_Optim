@@ -3,29 +3,6 @@ from tensor_layers.utils import config_class
 from tensor_layers.Transformer_tensor import Transformer_classification
 import time
 
-def benchmark(model,input,iters):
-    start = torch.cuda.Event(enable_timing=True)
-    end = torch.cuda.Event(enable_timing=True)
-
-    
-    
-    torch.cuda.synchronize()
-
-    st = time.time()
-    for i in range(iters):
-        y = model(input.requires_grad_(False))
-        y = torch.sum(y**2)
-        y.backward()
-        model.zero_grad()
-        torch.cuda.synchronize()
-    # torch.cuda.synchronize()
-    ed = time.time()
-    t = (ed-st)*100/iters
-    
-    print("{t:.2f}s per 100 iteration".format(t=t))
-
-    torch.save(model.state_dict(),'model.pt')
-
 device = 'cuda'
 
 D = {
@@ -79,14 +56,14 @@ config_classification = config_class(d_model=D['d_model'],tensorized=D['tensoriz
 
 
 model = Transformer_classification(config_model,config_classification).to(device)
+model.load_state_dict(torch.load("model.pt"))
 
 
 input = torch.randint(0,30000,(32,128)).to(device)
 
-benchmark(model,input,100)
 
-
-
-
-
-
+with torch.no_grad():
+    st = time.time()
+    model(input)
+    ed = time.time()
+    print(str((ed-st)*100)+" inf time")
