@@ -54,6 +54,8 @@ def main():
                     loss=valid_loss, accu=100*valid_accu,
                     elapse=(time.time()-start)/60))
 
+        torch.save(transformer.state_dict(),'model_real_data.pt')
+
 
 ############# Prepare Dataset ################################
 
