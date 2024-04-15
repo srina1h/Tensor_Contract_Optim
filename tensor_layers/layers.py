@@ -22,7 +22,7 @@ class wrapped_linear_layers(nn.Module):
         self.tensorized = tensorized
     def forward(self,input,config_forward=None):
         if self.tensorized:
-            return self.layer(input,config_forward=config_forward)
+            return self.layer(input.requires_grad_(False),config_forward=config_forward)
         else:
             return self.layer(input)
 
@@ -69,12 +69,11 @@ class TensorizedEmbedding(nn.Module):
         
         factors =self.tensor.factors
         rows = tensorized_lookup(x,factors,self.cum_prod,self.shape,'TensorTrainMatrix')
-
+        print(type(rows))
         rows = rows.view(x.shape[0], -1)
         rows = rows.view(*xshape_new)
         
         rows.to(x.device)
-        rows.requires_grad_(False)
         return rows
 
 
