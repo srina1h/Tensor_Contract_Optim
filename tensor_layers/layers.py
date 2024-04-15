@@ -65,16 +65,17 @@ class TensorizedEmbedding(nn.Module):
         xshape_new = xshape + [self.out_features, ]
         # x = x.view(-1)
         x = torch.flatten(x)
+        x.requires_grad_(False)
         
         factors =self.tensor.factors
         rows = tensorized_lookup(x,factors,self.cum_prod,self.shape,'TensorTrainMatrix')
 
         rows = rows.view(x.shape[0], -1)
-
         rows = rows.view(*xshape_new)
         
-
-        return rows.to(x.device)
+        rows.to(x.device)
+        rows.requires_grad_(False)
+        return rows
 
 
 #create tensor-compressed linear layers
@@ -122,6 +123,7 @@ class TensorizedLinear_module(nn.Module):
 
       
         factors =self.tensor.factors
+        factors = [i.requires_grad_(False) for i in factors]
 
         out = TT_forward.apply(input,*factors)+self.bias
 
