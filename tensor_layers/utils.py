@@ -54,7 +54,7 @@ class TT_forward(torch.autograd.Function):
             
             matrix = torch.reshape(matrix,[matrix.shape[0]]+tt_shape_row)
 
-            output = factors[0].reshape(-1, ranks[1])
+            output = factors[0].reshape(-1, ranks[1]).requires_grad_(False)
             left.append(output)
 
             for core in factors[1:d]:
