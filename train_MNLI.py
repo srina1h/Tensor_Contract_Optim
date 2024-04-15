@@ -30,7 +30,7 @@ def main():
     
     config_forward = None
     
-    for epoch in range(10):
+    for epoch in range(2):
 
         start = time.time()
         train_loss, train_accu = train_epoch(transformer, training_data, optimizer,config_forward=config_forward)
@@ -53,6 +53,8 @@ def main():
                 'elapse: {elapse:3.3f} min'.format(
                     loss=valid_loss, accu=100*valid_accu,
                     elapse=(time.time()-start)/60))
+        
+        torch.save(transformer.state_dict(),'model_real_data.pt')
 
 
 ############# Prepare Dataset ################################
