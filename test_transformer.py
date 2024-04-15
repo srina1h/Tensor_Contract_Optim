@@ -62,8 +62,9 @@ model.load_state_dict(torch.load("model.pt"))
 input = torch.randint(0,30000,(32,128)).to(device)
 
 model.eval()
-with torch.no_grad():
-    st = time.time()
-    model(input)
-    ed = time.time()
-    print(str((ed-st))+"s inf time")
+st = time.time()
+for i in range(50):
+    with torch.no_grad():
+        model(input)
+ed = time.time()
+print(str((ed-st)/50)+"s inf time")
