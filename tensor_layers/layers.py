@@ -69,7 +69,6 @@ class TensorizedEmbedding(nn.Module):
         
         factors =self.tensor.factors
         rows = tensorized_lookup(x,factors,self.cum_prod,self.shape,'TensorTrainMatrix')
-        print(type(rows))
         rows = rows.view(x.shape[0], -1)
         rows = rows.view(*xshape_new)
         
