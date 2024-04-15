@@ -22,7 +22,7 @@ class wrapped_linear_layers(nn.Module):
         self.tensorized = tensorized
     def forward(self,input,config_forward=None):
         if self.tensorized:
-            return self.layer(input.requires_grad_(False),config_forward=config_forward)
+            return self.layer(input,config_forward=config_forward)
         else:
             return self.layer(input)
 
