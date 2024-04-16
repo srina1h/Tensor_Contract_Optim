@@ -22,7 +22,7 @@ def main():
 
     transformer = init_Transformer(num_class=3)
     
-    batch_size = 128
+    batch_size = 1
     training_data,validation_data = prepare_MNLI(batch_size)
     
     lr = 1e-3
