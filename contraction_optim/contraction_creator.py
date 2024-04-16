@@ -50,7 +50,7 @@ class contraction_handler:
         # return torch.from_dlpack(output)
         print(self.b.stride())
         output = cutensor.contraction(self.alpha_val, cp.from_dlpack((self.a.contiguous()).detach()), self.mode_a, cp.from_dlpack((self.b.contiguous()).detach()), self.mode_b, self.beta_val, self.c, self.mode_c, algo = self.contraction_algorithm)
-        print(self.b.stride())
+        print(self.b.contiguous().stride())
         return torch.from_dlpack(output).requires_grad_(True)
 
     def construct_einstein_notation(self, aNoDim: int, bNoDim: int, contraction_indices: tuple[list, list]):
