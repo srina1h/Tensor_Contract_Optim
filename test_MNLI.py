@@ -24,7 +24,7 @@ def main():
 
     transformer.load_state_dict(torch.load("model_real_data.pt"))
     
-    batch_size = 128
+    batch_size = 1
     training_data,validation_data = prepare_MNLI(batch_size)
     
     lr = 1e-3
