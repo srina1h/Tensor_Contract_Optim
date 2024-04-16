@@ -215,6 +215,7 @@ def train_epoch(model, training_data, optimizer,device='cuda',config_forward=Non
         count+=1
         # if count>1000:
         #     break
+        break
 
 
      
