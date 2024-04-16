@@ -30,7 +30,7 @@ def main():
     
     config_forward = None
     
-    for epoch in range(2):
+    for epoch in range(1):
 
         start = time.time()
         train_loss, train_accu = train_epoch(transformer, training_data, optimizer,config_forward=config_forward)
