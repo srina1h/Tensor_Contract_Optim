@@ -35,9 +35,9 @@ def main():
         start = time.time()
         train_loss, train_accu = train_epoch(transformer, training_data, optimizer,config_forward=config_forward)
 
-        valid_loss, valid_accu = eval_epoch(transformer, validation_data, device,config_forward=config_forward)
+        # valid_loss, valid_accu = eval_epoch(transformer, validation_data, device,config_forward=config_forward)
 
-
+        valid_loss, valid_accu = 0, 0
 
         
         print('')
