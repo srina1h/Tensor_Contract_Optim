@@ -32,12 +32,7 @@ def main():
     
     config_forward = None
 
-    st = time.time()
-    for i in range(50):
-        with torch.no_grad():
-            eval_epoch(transformer, validation_data, device,config_forward=config_forward)
-    ed = time.time()
-    print(str((ed-st)/50)+"s inf time")
+    eval_epoch(transformer, validation_data, device,config_forward=config_forward)
 
 
 ############# Prepare Dataset ################################
@@ -196,7 +191,7 @@ def train_epoch(model, training_data, optimizer,device='cuda',config_forward=Non
         n_word_correct += torch.sum(torch.argmax(pred.detach(),dim=1)==target)
         
         count+=1
-        # if count>1000:
+        # if count==1:
         #     break
 
 
@@ -227,9 +222,15 @@ def eval_epoch(model, validation_data, device, config_forward=None):
             target,w1,attn,seg = map(lambda x: x.to(device), batch)
       
 
-            pred = model(w1,mask=attn,seg=seg,config_forward=config_forward)
+            # pred = model(w1,mask=attn,seg=seg,config_forward=config_forward)
+            # loss = Loss(pred,target)
+            st = time.time()
+            for i in range(50):
+                with torch.no_grad():
+                    pred = model(w1,mask=attn,seg=seg,config_forward=config_forward)
+            ed = time.time()
+            print(str((ed-st)/50)+"s inf time")
             loss = Loss(pred,target)
-
         
             total_loss += loss.item()
 
@@ -237,6 +238,7 @@ def eval_epoch(model, validation_data, device, config_forward=None):
        
             n_word_total += pred.shape[0]
             n_word_correct += torch.sum(torch.argmax(pred,dim=1)==target)
+            break
 
     loss_per_word = total_loss/n_word_total
     accuracy = n_word_correct/n_word_total
