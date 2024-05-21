@@ -2,7 +2,7 @@ import torch
 import numpy as np
 import torch.nn.functional as F
 import cupy as cp
-from cupyx import cutensor
+# from cupyx import cutensor
 from contraction_optim.contraction_creator import contraction_handler
 
 class config_class():
