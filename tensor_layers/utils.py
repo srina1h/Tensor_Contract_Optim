@@ -2,6 +2,7 @@ import torch
 import numpy as np
 import torch.nn.functional as F
 import cupy as cp
+import time
 from contraction_optim.contraction_creator import contraction_handler
 
 TIMING = True
@@ -65,10 +66,18 @@ class TT_forward(torch.autograd.Function):
                 output = (con.perform_contraction())
                 left.append(output)
             
-        
-            # output = torch.tensordot(matrix,output,[list(range(1,d+1)),list(range(d))])
+            print(matrix.shape)
+            print(output.shape)
+            time1 = time.time()
+            torch.tensordot(matrix,output,[list(range(1,d+1)),list(range(d))])
+            time2 = time.time()
+            print("Time taken for tensordot:",time2-time1)
+            time1 = time.time()
             con = contraction_handler(matrix, output, [list(range(1,d+1)),list(range(d))])
             output = con.perform_contraction()
+            time2 = time.time()
+            print("Time taken for contraction:",time2-time1)
+            print(output.shape)
 
 
             saved_tensors.append(left)
