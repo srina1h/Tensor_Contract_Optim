@@ -2,8 +2,9 @@ import torch
 import numpy as np
 import torch.nn.functional as F
 import cupy as cp
-# from cupyx import cutensor
 from contraction_optim.contraction_creator import contraction_handler
+
+TIMING = True
 
 class config_class():
     def __init__(self,
