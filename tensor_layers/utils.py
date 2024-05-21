@@ -66,18 +66,9 @@ class TT_forward(torch.autograd.Function):
                 output = (con.perform_contraction())
                 left.append(output)
             
-            print(matrix.shape)
-            print(output.shape)
-            time1 = time.time()
-            torch.tensordot(matrix,output,[list(range(1,d+1)),list(range(d))])
-            time2 = time.time()
-            print("Time taken for tensordot:",time2-time1)
-            time1 = time.time()
-            con = contraction_handler(matrix, output, [list(range(1,d+1)),list(range(d))], debug=True)
+            # torch.tensordot(matrix,output,[list(range(1,d+1)),list(range(d))])
+            con = contraction_handler(matrix, output, [list(range(1,d+1)),list(range(d))])
             output = con.perform_contraction()
-            time2 = time.time()
-            print("Time taken for contraction:",time2-time1)
-            print(output.shape)
 
 
             saved_tensors.append(left)
@@ -93,10 +84,18 @@ class TT_forward(torch.autograd.Function):
             out = torch.squeeze(temp)
 
             
-            
-            # output = torch.tensordot(output,out,[[-1],[0]])
-            con = contraction_handler(output,out,([-1],[0]))
+            print(output.shape)
+            print(out.shape)
+            time1 = time.time()
+            torch.tensordot(output,out,[[-1],[0]])
+            time2 = time.time()
+            print("Time taken for tensordot:",time2-time1)
+            time1 = time.time()
+            con = contraction_handler(output,out,([-1],[0]), debug=True)
             output = (con.perform_contraction())
+            time2 = time.time()
+            print("Time taken for contraction:",time2-time1)
+            print(output.shape)
             output = torch.reshape(output,out_shape)
         
             
