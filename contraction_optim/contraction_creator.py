@@ -30,11 +30,17 @@ class contraction_handler:
         bNoDim = len(self.b.shape)
 
         # Construct the Einstein notation
+        time1 = time.time()
         einstein_notation = self.construct_einstein_notation(aNoDim, bNoDim, self.contraction_indices)
+        time2 = time.time()
+        print("Time taken to construct Einstein notation: ", time2 - time1)
         # if self.debug:
         #     print(einstein_notation)
+        time1 = time.time()
         self.set_modes(einstein_notation)
         self.extents = self.set_extents(self.a.size(), self.b.size(), self.mode_a, self.mode_b)
+        time2 = time.time()
+        print("Time taken to set modes and extents: ", time2 - time1)
         # if self.debug:
             # print(self.extents)
         if self.debug:
