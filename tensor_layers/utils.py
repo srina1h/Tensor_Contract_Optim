@@ -73,7 +73,7 @@ class TT_forward(torch.autograd.Function):
             time2 = time.time()
             print("Time taken for tensordot:",time2-time1)
             time1 = time.time()
-            con = contraction_handler(matrix, output, [list(range(1,d+1)),list(range(d))])
+            con = contraction_handler(matrix, output, [list(range(1,d+1)),list(range(d))], debug=True)
             output = con.perform_contraction()
             time2 = time.time()
             print("Time taken for contraction:",time2-time1)

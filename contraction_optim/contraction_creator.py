@@ -37,25 +37,37 @@ class contraction_handler:
         self.extents = self.set_extents(self.a.size(), self.b.size(), self.mode_a, self.mode_b)
         # if self.debug:
             # print(self.extents)
-        time1 = time.time()
-        self.c = self.create_C().astype(cp.float32)
-        time2 = time.time()
-        print("Time taken to create C: ", time2 - time1)
-        # if self.debug:
-            # print(self.c.shape)
+        if self.debug:
+            time1 = time.time()
+            self.c = self.create_C().astype(cp.float32)
+            time2 = time.time()
+            print("Time taken to create C: ", time2 - time1)
+            # if self.debug:
+                # print(self.c.shape)
 
-        # output = cutensor.contraction(self.alpha_val, cp.from_dlpack((self.a.contiguous())), self.mode_a, cp.from_dlpack((self.b.contiguous())), self.mode_b, self.beta_val, self.c, self.mode_c, algo = self.contraction_algorithm)
-        # return torch.from_dlpack(output)
-        time1 = time.time()
-        A = cp.from_dlpack((self.a.contiguous()).detach())
-        B = cp.from_dlpack((self.b.contiguous()).detach())
-        time2 = time.time()
-        print("Time taken to make A and B contiguous: ", time2 - time1)
-        time1 = time.time()
-        output = cutensor.contraction(self.alpha_val, A, self.mode_a, B, self.mode_b, self.beta_val, self.c, self.mode_c, algo = self.contraction_algorithm)
-        time2 = time.time()
-        print("Time taken to perform cutensor contraction: ", time2 - time1)
-        return torch.from_dlpack(output).requires_grad_(True)
+            # output = cutensor.contraction(self.alpha_val, cp.from_dlpack((self.a.contiguous())), self.mode_a, cp.from_dlpack((self.b.contiguous())), self.mode_b, self.beta_val, self.c, self.mode_c, algo = self.contraction_algorithm)
+            # return torch.from_dlpack(output)
+            time1 = time.time()
+            A = cp.from_dlpack((self.a.contiguous()).detach())
+            B = cp.from_dlpack((self.b.contiguous()).detach())
+            time2 = time.time()
+            print("Time taken to make A and B contiguous: ", time2 - time1)
+            time1 = time.time()
+            output = cutensor.contraction(self.alpha_val, A, self.mode_a, B, self.mode_b, self.beta_val, self.c, self.mode_c, algo = self.contraction_algorithm)
+            time2 = time.time()
+            print("Time taken to perform cutensor contraction: ", time2 - time1)
+            return torch.from_dlpack(output).requires_grad_(True)
+        else:
+            self.c = self.create_C().astype(cp.float32)
+            # if self.debug:
+                # print(self.c.shape)
+
+            # output = cutensor.contraction(self.alpha_val, cp.from_dlpack((self.a.contiguous())), self.mode_a, cp.from_dlpack((self.b.contiguous())), self.mode_b, self.beta_val, self.c, self.mode_c, algo = self.contraction_algorithm)
+            # return torch.from_dlpack(output)
+            A = cp.from_dlpack((self.a.contiguous()).detach())
+            B = cp.from_dlpack((self.b.contiguous()).detach())
+            output = cutensor.contraction(self.alpha_val, A, self.mode_a, B, self.mode_b, self.beta_val, self.c, self.mode_c, algo = self.contraction_algorithm)
+            return torch.from_dlpack(output).requires_grad_(True)
 
     def construct_einstein_notation(self, aNoDim: int, bNoDim: int, contraction_indices: tuple[list, list]):
         indices = 'abcdefghijklmnopqrstuvwxyz'
