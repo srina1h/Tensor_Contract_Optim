@@ -29,21 +29,23 @@ class contraction_handler:
         aNoDim = len(self.a.shape)
         bNoDim = len(self.b.shape)
 
-        # Construct the Einstein notation
-        time1 = time.time()
-        einstein_notation = self.construct_einstein_notation(aNoDim, bNoDim, self.contraction_indices)
-        time2 = time.time()
-        print("Time taken to construct Einstein notation: ", time2 - time1)
-        # if self.debug:
-        #     print(einstein_notation)
-        time1 = time.time()
-        self.set_modes(einstein_notation)
-        self.extents = self.set_extents(self.a.size(), self.b.size(), self.mode_a, self.mode_b)
-        time2 = time.time()
-        print("Time taken to set modes and extents: ", time2 - time1)
+        
         # if self.debug:
             # print(self.extents)
         if self.debug:
+            # Construct the Einstein notation
+            time1 = time.time()
+            einstein_notation = self.construct_einstein_notation(aNoDim, bNoDim, self.contraction_indices)
+            time2 = time.time()
+            print("Time taken to construct Einstein notation: ", time2 - time1)
+            # if self.debug:
+            #     print(einstein_notation)
+            time1 = time.time()
+            self.set_modes(einstein_notation)
+            self.extents = self.set_extents(self.a.size(), self.b.size(), self.mode_a, self.mode_b)
+            time2 = time.time()
+            print("Time taken to set modes and extents: ", time2 - time1)
+
             time1 = time.time()
             self.c = self.create_C().astype(cp.float32)
             time2 = time.time()
@@ -64,6 +66,12 @@ class contraction_handler:
             print("Time taken to perform cutensor contraction: ", time2 - time1)
             return torch.from_dlpack(output).requires_grad_(True)
         else:
+            # Construct the Einstein notation
+            einstein_notation = self.construct_einstein_notation(aNoDim, bNoDim, self.contraction_indices)
+            # if self.debug:
+            #     print(einstein_notation)
+            self.set_modes(einstein_notation)
+            self.extents = self.set_extents(self.a.size(), self.b.size(), self.mode_a, self.mode_b)
             self.c = self.create_C().astype(cp.float32)
             # if self.debug:
                 # print(self.c.shape)
