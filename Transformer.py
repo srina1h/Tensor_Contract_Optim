@@ -14,7 +14,6 @@ def benchmark(model,input,iters):
     st = time.time()
     for i in range(iters):
         y = model(input)
-        break
         y = torch.sum(y**2)
         y.backward()
         model.zero_grad()
