@@ -1,6 +1,7 @@
 import torch
 import numpy as np
 import torch.nn.functional as F
+import time
 
 class config_class():
     def __init__(self,
@@ -123,12 +124,23 @@ class TT_forward(torch.autograd.Function):
                 print("back-tdot-loop1"+str(i))
                 print(left[i - 1].shape)
                 print(left[i - 1].reshape(-1, ranks[i]).shape)
+                time1 = time.time()
+                random1 = left[i - 1].reshape(-1, ranks[i])
+                time2 = time.time()
+                print("time for reshape1: ", time2-time1)
+                time1 = time.time()
+                random2 = matrix_dy_core_prod.reshape(np.prod(tt_shape_row[:i]), tt_shape_row[i], -1, ranks[d])
+                time2 = time.time()
+                print("time for reshape 2: ", time2 - time1)
                 print(matrix_dy_core_prod.shape)
                 print(matrix_dy_core_prod.reshape(np.prod(tt_shape_row[:i]), tt_shape_row[i], -1, ranks[d]).shape)
+                time1 = time.time()
                 grad = (torch.tensordot(left[i - 1].reshape(-1, ranks[i]),
                                     matrix_dy_core_prod.reshape(np.prod(tt_shape_row[:i]), tt_shape_row[i], -1,
                                                                 ranks[d]),
                                     dims=([0], [0])))
+                time2 = time.time()
+                print("time for tdot: ", time2 - time1)
                 print(grad.shape)
                 if i == d - 1:
                     right_core = factors[i]
