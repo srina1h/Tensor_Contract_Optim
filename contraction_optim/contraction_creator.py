@@ -78,8 +78,8 @@ class contraction_handler:
 
             # output = cutensor.contraction(self.alpha_val, cp.from_dlpack((self.a.contiguous())), self.mode_a, cp.from_dlpack((self.b.contiguous())), self.mode_b, self.beta_val, self.c, self.mode_c, algo = self.contraction_algorithm)
             # return torch.from_dlpack(output)
-            A = cp.from_dlpack((self.a.contiguous()).detach())
-            B = cp.from_dlpack((self.b.contiguous()).detach())
+            # A = cp.from_dlpack((self.a.contiguous()).detach())
+            # B = cp.from_dlpack((self.b.contiguous()).detach())
             output = cutensor.contraction(self.alpha_val, A, self.mode_a, B, self.mode_b, self.beta_val, self.c, self.mode_c, algo = self.contraction_algorithm)
             return torch.from_dlpack(output).requires_grad_(True)
 
