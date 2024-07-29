@@ -69,6 +69,7 @@ class contraction_handler:
         else:
             # Construct the Einstein notation
             einstein_notation = self.construct_einstein_notation(aNoDim, bNoDim, self.contraction_indices)
+            print(einstein_notation)
             # if self.debug:
             #     print(einstein_notation)
             self.set_modes(einstein_notation)
