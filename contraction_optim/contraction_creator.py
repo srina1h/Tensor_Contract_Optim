@@ -69,6 +69,7 @@ class contraction_handler:
         else:
             # Construct the Einstein notation
             einstein_notation = self.construct_einstein_notation(aNoDim, bNoDim, self.contraction_indices)
+            einstein_notation_cutensor_spec = self.construct_einstein_notation_cutensor_spec(aNoDim, bNoDim, self.contraction_indices)
             print(einstein_notation)
             # if self.debug:
             #     print(einstein_notation)
@@ -83,7 +84,7 @@ class contraction_handler:
             # A = cp.from_dlpack((self.a.contiguous()).detach())
             # B = cp.from_dlpack((self.b.contiguous()).detach())
             # output = cutensor.contraction(self.alpha_val, cp.from_dlpack(self.a.detach()), self.mode_a, cp.from_dlpack(self.b.detach()), self.mode_b, self.beta_val, self.c, self.mode_c, algo = self.contraction_algorithm)
-            output = EinsumGeneral(einstein_notation, self.a, self.b)
+            output = EinsumGeneral(einstein_notation_cutensor_spec, self.a, self.b)
             return output
             # return torch.from_dlpack(output).requires_grad_(True)
 
@@ -119,6 +120,40 @@ class contraction_handler:
         
         # Return the Einstein notation
         return left + ' -> ' + right
+
+    def construct_einstein_notation_cutensor_spec(self, aNoDim: int, bNoDim: int, contraction_indices: tuple[list, list]):
+        indices = 'abcdefghijklmnopqrstuvwxyz'
+        left = ''
+        right = ''
+        iterator = 0
+        contracted_modes = []
+
+        cleaned_contraction_indices = (self.clean_negative_index_postions(aNoDim, contraction_indices[0]), self.clean_negative_index_postions(bNoDim, contraction_indices[1]))
+        
+        # Iterate over all dimensions of the first tensor
+        for i in range(aNoDim):
+            left += indices[iterator]
+            if i in cleaned_contraction_indices[0]:
+                contracted_modes.append(indices[iterator])
+            else:
+                right += indices[iterator]
+            iterator += 1
+        
+        # Add the '*' symbol to the left side of the equation
+        left += ','
+        
+        # Iterate over all dimensions of the second tensor
+        for i in range(bNoDim):
+            if i in cleaned_contraction_indices[1]:
+                left += contracted_modes.pop(0)
+            else:
+                left += indices[iterator]
+                right += indices[iterator]
+                iterator += 1
+        
+        # Return the Einstein notation
+        return left + '->' + right
+
 
     def clean_negative_index_postions(self, noOfDims: int, contraction_axes: list):
         # convert the negative indices into the actual positions
