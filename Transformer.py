@@ -20,7 +20,7 @@ def benchmark(model,input,iters):
         torch.cuda.synchronize()
     # torch.cuda.synchronize()
     ed = time.time()
-    t = (ed-st)*100/iters
+    t = (ed-st)/iters
     
     print("{t:.2f}s per 100 iteration".format(t=t))
 
