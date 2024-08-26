@@ -228,8 +228,10 @@ class TT_forward(torch.autograd.Function):
 
 
             # dx = (torch.tensordot(dx, temp.reshape(np.prod(tt_shape_row), -1), dims=([-1], [-1])))
+            print("Interested contraction")
             con = contraction_handler(dx, temp.reshape(np.prod(tt_shape_row), -1), ([-1], [-1]))
             dx = (con.perform_contraction())
+            print("end of contraction")
             exit()
             dx = torch.reshape(dx,ctx.input_shape)            
 
