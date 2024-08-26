@@ -61,9 +61,8 @@ class TT_forward(torch.autograd.Function):
                 # output = (torch.tensordot(output, core, dims=([-1], [0])))
                 # print(output.requires_grad)
                 con = contraction_handler(output, core, ([-1], [0]))
-                print("lmao")
-                # exit()
                 output = (con.perform_contraction())
+                exit()
                 left.append(output)
             
         
