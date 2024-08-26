@@ -62,7 +62,7 @@ class TT_forward(torch.autograd.Function):
                 # print(output.requires_grad)
                 con = contraction_handler(output, core, ([-1], [0]))
                 print("lmao")
-                exit()
+                # exit()
                 output = (con.perform_contraction())
                 left.append(output)
             
