@@ -239,13 +239,13 @@ class TT_forward(torch.autograd.Function):
             print("Interested contraction")
             print(dx.shape)
             print(temp.reshape(np.prod(tt_shape_row), -1).shape)
-            flag = False
-            if dx.shape == (4096, 20) and temp.reshape(np.prod(tt_shape_row), -1).shape == (768, 20):
-                flag = True
+            # flag = False
+            # if dx.shape == (4096, 20) and temp.reshape(np.prod(tt_shape_row), -1).shape == (768, 20):
+            #     flag = True
             con = contraction_handler(dx, temp.reshape(np.prod(tt_shape_row), -1), ([-1], [-1]))
             dx = (con.perform_contraction())
-            if flag:
-                exit()
+            # if flag:
+            #     exit()
             print("end of contraction")
             dx = torch.reshape(dx,ctx.input_shape)            
 
