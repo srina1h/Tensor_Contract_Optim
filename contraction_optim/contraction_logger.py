@@ -25,7 +25,7 @@ def log_arguments(*args):
         df.loc[existing_entry.index, 'number'] += 1
     else:
         # If no such entries exist, add a new entry with 'number' set to 1
-        new_entry = pd.DataFrame([args + (1,)], columns=df.columns.tolist() + ['number'])
+        new_entry = pd.DataFrame([args + (1,)], columns=df.columns.tolist())
         df = pd.concat([df, new_entry], ignore_index=True)
     
     # Save the updated dataframe back to pickle
