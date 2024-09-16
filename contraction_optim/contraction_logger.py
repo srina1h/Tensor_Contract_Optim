@@ -31,8 +31,6 @@ def log_arguments(*args):
     # Save the updated dataframe back to pickle
     with open(log_file, 'wb') as f:
         pickle.dump(df, f)
-    
-    print("done")
 
 if __name__ == "__main__":
     log_arguments(*sys.argv[1:])
