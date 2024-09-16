@@ -165,7 +165,7 @@ class TT_forward(torch.autograd.Function):
                     temp_a = grad
                     con = contraction_handler(grad, right_core, ([2, 3], [1, 2]))
                     grad = (con.perform_contraction())
-                    contraction_logger.log_arguments(None, None, temp_a.grad, right_core.shape, grad.shape, ([2, 3], [1, 2]), "backward")
+                    contraction_logger.log_arguments(None, None, temp_a.shape, right_core.shape, grad.shape, ([2, 3], [1, 2]), "backward")
 
                     # right_core = torch.tensordot(factors[i], right_core,dims=([-1], [0])).reshape(ranks[i], -1, ranks[d])
                     temp_b = right_core
@@ -278,7 +278,7 @@ class TT_forward(torch.autograd.Function):
             actual_b = temp.reshape(np.prod(tt_shape_row), -1)
             con = contraction_handler(dx, temp.reshape(np.prod(tt_shape_row), -1), ([-1], [-1]))
             dx = (con.perform_contraction())
-            contraction_logger.log_arguments(None, temp_b, actual_a.shape, actual_b.shape, dx.shape, ([-1], [-1]), "backward")
+            contraction_logger.log_arguments(None, temp_b.shape, actual_a.shape, actual_b.shape, dx.shape, ([-1], [-1]), "backward")
             # print("end of contraction")
             # if dx.shape == (4096, 20) and temp.reshape(np.prod(tt_shape_row), -1).shape == (768, 20):
             #     exit()
