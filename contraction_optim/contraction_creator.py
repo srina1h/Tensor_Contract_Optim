@@ -1,7 +1,11 @@
 import torch
 import cupy as cp
 from cupyx import cutensor
+from cutensor.torch import EinsumGeneral
 import platform
+import time
+
+IMPLEMENTATION = 1 # 0 for cupy, 1 for cutensor, 2 for torch
 
 PERMANENT_ALPHA = 1.0
 PERMANENT_BETA = 0.0
@@ -27,25 +31,50 @@ class contraction_handler:
         # Get the dimensions of the tensors
         aNoDim = len(self.a.shape)
         bNoDim = len(self.b.shape)
+        
+        if IMPLEMENTATION == 0:
+            # Construct the Einstein notation
+            # time1 = time.time()
+            einstein_notation = self.construct_einstein_notation(aNoDim, bNoDim, self.contraction_indices)
+            # time2 = time.time()
+            # print("Time taken to construct Einstein notation: ", time2 - time1)
+            # time1 = time.time()
+            self.set_modes(einstein_notation)
+            self.extents = self.set_extents(self.a.size(), self.b.size(), self.mode_a, self.mode_b)
+            # time2 = time.time()
+            # print("Time taken to set modes and extents: ", time2 - time1)
 
-        # Construct the Einstein notation
-        einstein_notation = self.construct_einstein_notation(aNoDim, bNoDim, self.contraction_indices)
-        # if self.debug:
-        #     print(einstein_notation)
-        self.set_modes(einstein_notation)
-        self.extents = self.set_extents(self.a.size(), self.b.size(), self.mode_a, self.mode_b)
-        # if self.debug:
-            # print(self.extents)
+            # time1 = time.time()
+            a = time.time()
+            self.c = self.create_C().astype(cp.float32)
+            # time2 = time.time()
+            # print("Time taken to create C: ", time2 - time1)
 
-        self.c = self.create_C().astype(cp.float32)
+            # time1 = time.time()
+            A = cp.from_dlpack((self.a.contiguous()).detach())
+            B = cp.from_dlpack((self.b.contiguous()).detach())
+            # time2 = time.time()
+            # print("Time taken to make A and B contiguous: ", time2 - time1)
+            # time1 = time.time()
+            output = cutensor.contraction(self.alpha_val, A, self.mode_a, B, self.mode_b, self.beta_val, self.c, self.mode_c, algo = self.contraction_algorithm)
+            b = time.time()
+            # time2 = time.time()
+            # print("Time taken to perform cutensor contraction: ", time2 - time1)
+            return torch.from_dlpack(output).requires_grad_(True), b-a
+        elif IMPLEMENTATION == 1:
+            # Construct the Einstein notation
+            einstein_notation = self.construct_einstein_notation(aNoDim, bNoDim, self.contraction_indices)
+            einstein_notation_cutensor_spec = self.construct_einstein_notation_cutensor_spec(aNoDim, bNoDim, self.contraction_indices)
 
-        # if self.debug:
-            # print(self.c.shape)
-
-        # output = cutensor.contraction(self.alpha_val, cp.from_dlpack((self.a.contiguous())), self.mode_a, cp.from_dlpack((self.b.contiguous())), self.mode_b, self.beta_val, self.c, self.mode_c, algo = self.contraction_algorithm)
-        # return torch.from_dlpack(output)
-        output = cutensor.contraction(self.alpha_val, cp.from_dlpack((self.a.contiguous()).detach()), self.mode_a, cp.from_dlpack((self.b.contiguous()).detach()), self.mode_b, self.beta_val, self.c, self.mode_c, algo = self.contraction_algorithm)
-        return torch.from_dlpack(output).requires_grad_(True)
+            a = time.time()
+            output = EinsumGeneral(einstein_notation_cutensor_spec, self.a, self.b)
+            b = time.time()
+            return output
+        elif IMPLEMENTATION == 2:
+            a = time.time()
+            output = torch.tensordot(self.a, self.b, self.contraction_indices)
+            b = time.time()
+            return output, b-a
 
     def construct_einstein_notation(self, aNoDim: int, bNoDim: int, contraction_indices: tuple[list, list]):
         indices = 'abcdefghijklmnopqrstuvwxyz'
@@ -79,6 +108,40 @@ class contraction_handler:
         
         # Return the Einstein notation
         return left + ' -> ' + right
+
+    def construct_einstein_notation_cutensor_spec(self, aNoDim: int, bNoDim: int, contraction_indices: tuple[list, list]):
+        indices = 'abcdefghijklmnopqrstuvwxyz'
+        left = ''
+        right = ''
+        iterator = 0
+        contracted_modes = []
+
+        cleaned_contraction_indices = (self.clean_negative_index_postions(aNoDim, contraction_indices[0]), self.clean_negative_index_postions(bNoDim, contraction_indices[1]))
+        
+        # Iterate over all dimensions of the first tensor
+        for i in range(aNoDim):
+            left += indices[iterator]
+            if i in cleaned_contraction_indices[0]:
+                contracted_modes.append(indices[iterator])
+            else:
+                right += indices[iterator]
+            iterator += 1
+        
+        # Add the '*' symbol to the left side of the equation
+        left += ','
+        
+        # Iterate over all dimensions of the second tensor
+        for i in range(bNoDim):
+            if i in cleaned_contraction_indices[1]:
+                left += contracted_modes.pop(0)
+            else:
+                left += indices[iterator]
+                right += indices[iterator]
+                iterator += 1
+        
+        # Return the Einstein notation
+        return left + '->' + right
+
 
     def clean_negative_index_postions(self, noOfDims: int, contraction_axes: list):
         # convert the negative indices into the actual positions
