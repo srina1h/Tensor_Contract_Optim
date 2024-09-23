@@ -42,7 +42,7 @@ def log_arguments(*args):
         if not existing_entry.empty:
             # If such entries exist, increase their number in the 'number' column
             df.loc[existing_entry.index, 'number'] += 1
-            df.loc[existing_entry.index, 'total_time'] += args[9]
+            df.loc[existing_entry.index, 'total_time'] += args[7]
         else:
             # If no such entries exist, add a new entry with 'number' set to 1
             new_entry = pd.DataFrame([args[2:7] + [1] + [args[7]]], columns=df.columns.tolist())
