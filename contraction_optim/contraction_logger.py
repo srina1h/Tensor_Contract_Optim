@@ -44,7 +44,7 @@ def log_arguments(*args):
             df.loc[existing_entry.index, 'total_time'] += args[9]
         else:
             # If no such entries exist, add a new entry with 'number' set to 1
-            new_entry = pd.DataFrame([args[2:8] + (1,)], columns=df.columns.tolist())
+            new_entry = pd.DataFrame([args[2:8] + [1,0]], columns=df.columns.tolist())
             df = pd.concat([df, new_entry], ignore_index=True)
 
     # Save the updated dataframe back to pickle
