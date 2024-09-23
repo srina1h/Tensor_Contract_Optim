@@ -13,8 +13,9 @@ def log_arguments(*args):
     for i in range (2, 5):
         args[i] = list(args[i])
     
-    args = [str(i) for i in args]
-    
+    for i in range(len(args)):
+        if i != 7:
+            args[i] = str(args[i])
     print(args)
 
     log_file = 'logged_dimensions_tensorized_nn.pkl'
@@ -44,7 +45,7 @@ def log_arguments(*args):
             df.loc[existing_entry.index, 'total_time'] += args[9]
         else:
             # If no such entries exist, add a new entry with 'number' set to 1
-            new_entry = pd.DataFrame([args[2:7] + [1] + args[7]], columns=df.columns.tolist())
+            new_entry = pd.DataFrame([args[2:7] + [1] + [args[7]]], columns=df.columns.tolist())
             df = pd.concat([df, new_entry], ignore_index=True)
 
     # Save the updated dataframe back to pickle
