@@ -7,6 +7,7 @@ SEQUENTIAL = False
 
 def log_arguments(*args):
     args = list(args)
+    print(args)
     if len(args) != 11:
         raise ValueError("Exactly 11 arguments are required")
     
