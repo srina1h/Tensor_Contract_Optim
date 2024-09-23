@@ -11,7 +11,7 @@ with open(pickle_file_path, 'rb') as file:
 df = pd.DataFrame(data)
 
 # Export the DataFrame to an xlsx file
-xlsx_file_path = 'dimensions.xlsx'
+xlsx_file_path = 'a100_combined_cuT.xlsx'
 df.to_excel(xlsx_file_path, index=False)
 
 print(f"Data has been successfully exported to {xlsx_file_path}")
