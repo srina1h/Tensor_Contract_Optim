@@ -141,7 +141,8 @@ class TT_forward(torch.autograd.Function):
 
                     temp_b = right_core
                     con = contraction_handler(factors[i], right_core, ([-1], [0]))
-                    right_core, conTime = con.perform_contraction().reshape(ranks[i], -1, ranks[d])
+                    right_core, conTime = con.perform_contraction()
+                    right_core = right_core.reshape(ranks[i], -1, ranks[d])
                     contraction_logger.log_arguments(None, None, factors[i].shape, temp_b.shape, right_core.shape, ([-1], [0]), "backward", conTime, "factors[i]", "right_core", "right_core")
                 
                 if grad.shape != factors[i].shape:
