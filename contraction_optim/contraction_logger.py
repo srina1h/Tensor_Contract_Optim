@@ -16,7 +16,6 @@ def log_arguments(*args):
     for i in range(len(args)):
         if i != 7:
             args[i] = str(args[i])
-    print(args)
 
     log_file = 'logged_dimensions_tensorized_nn.pkl'
     
