@@ -3,7 +3,7 @@ import pickle
 import os
 import sys
 
-SEQUENTIAL = False
+SEQUENTIAL = True
 
 def log_arguments(*args):
     args = list(args)
