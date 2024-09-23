@@ -13,6 +13,8 @@ def log_arguments(*args):
     for i in range (2, 5):
         args[i] = list(args[i])
     
+    args = [str(i) for i in args]
+    
     print(args)
 
     log_file = 'logged_dimensions_tensorized_nn.pkl'
