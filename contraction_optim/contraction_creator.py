@@ -69,7 +69,7 @@ class contraction_handler:
             a = time.time()
             output = EinsumGeneral(einstein_notation_cutensor_spec, self.a, self.b)
             b = time.time()
-            return output
+            return output, b-a
         elif IMPLEMENTATION == 2:
             a = time.time()
             output = torch.tensordot(self.a, self.b, self.contraction_indices)
