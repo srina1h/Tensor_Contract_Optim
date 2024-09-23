@@ -152,8 +152,8 @@ class TT_forward(torch.autograd.Function):
 
             temp_a = matrix_dy_core_prod
             con = contraction_handler(matrix_dy_core_prod.reshape(tt_shape_row[0], -1, ranks[d]), right_core, ([1, 2], [1, 2]))
-            temp, conTime = con.perform_contraction().reshape(1, tt_shape_row[0], -1)
-            temp = (temp)
+            temp, conTime = con.perform_contraction()
+            temp = (temp.reshape(1, tt_shape_row[0], -1))
             contraction_logger.log_arguments(temp_a.shape, None, matrix_dy_core_prod.reshape(tt_shape_row[0], -1, ranks[d]).shape, right_core.shape, temp.shape, ([1, 2], [1, 2]), "backward", conTime, "matrix_dy_core_prod-reshape", "right_core", "temp")
 
             left_grads.append(temp)
