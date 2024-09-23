@@ -7,12 +7,13 @@ SEQUENTIAL = False
 
 def log_arguments(*args):
     args = list(args)
-    print(args)
     if len(args) != 11:
         raise ValueError("Exactly 11 arguments are required")
     
     for i in range (2, 5):
         args[i] = list(args[i])
+    
+    print(args)
 
     log_file = 'logged_dimensions_tensorized_nn.pkl'
     
