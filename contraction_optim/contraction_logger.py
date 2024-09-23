@@ -31,7 +31,7 @@ def log_arguments(*args):
 
     if SEQUENTIAL:
         # Append new arguments to the dataframe
-        new_entry = pd.DataFrame([args[0:8] + [1] + args[8:12]], columns=df.columns.tolist())
+        new_entry = pd.DataFrame([args[0:7] + [1] + args[8:12]], columns=df.columns.tolist())
         df = pd.concat([df, new_entry], ignore_index=True)
     else:
         # Append new arguments to the dataframe
