@@ -5,7 +5,7 @@ from cutensor.torch import EinsumGeneral
 import platform
 import time
 
-IMPLEMENTATION = 0 # 0 for cupy, 1 for cutensor, 2 for torch
+IMPLEMENTATION = 2 # 0 for cupy, 1 for cutensor, 2 for torch
 
 PERMANENT_ALPHA = 1.0
 PERMANENT_BETA = 0.0
