@@ -7,7 +7,7 @@ SEQUENTIAL = False
 
 def log_arguments(*args):
     args = list(args)
-    if len(args) != 11:
+    if len(args) != 12:
         raise ValueError("Exactly 12 arguments are required")
     
     for i in range (2, 5):
