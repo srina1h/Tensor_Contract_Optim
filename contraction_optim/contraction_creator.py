@@ -31,14 +31,10 @@ class contraction_handler:
         # Get the dimensions of the tensors
         aNoDim = len(self.a.shape)
         bNoDim = len(self.b.shape)
+
+        einstein_notation = self.construct_einstein_notation(aNoDim, bNoDim, self.contraction_indices)
         
         if IMPLEMENTATION == 0:
-            # Construct the Einstein notation
-            # time1 = time.time()
-            einstein_notation = self.construct_einstein_notation(aNoDim, bNoDim, self.contraction_indices)
-            # time2 = time.time()
-            # print("Time taken to construct Einstein notation: ", time2 - time1)
-            # time1 = time.time()
             self.set_modes(einstein_notation)
             self.extents = self.set_extents(self.a.size(), self.b.size(), self.mode_a, self.mode_b)
             # time2 = time.time()
@@ -60,21 +56,20 @@ class contraction_handler:
             b = time.time()
             # time2 = time.time()
             # print("Time taken to perform cutensor contraction: ", time2 - time1)
-            return torch.from_dlpack(output).requires_grad_(True), b-a
+            return torch.from_dlpack(output).requires_grad_(True), b-a, einstein_notation
         elif IMPLEMENTATION == 1:
             # Construct the Einstein notation
-            einstein_notation = self.construct_einstein_notation(aNoDim, bNoDim, self.contraction_indices)
             einstein_notation_cutensor_spec = self.construct_einstein_notation_cutensor_spec(aNoDim, bNoDim, self.contraction_indices)
 
             a = time.time()
             output = EinsumGeneral(einstein_notation_cutensor_spec, self.a, self.b)
             b = time.time()
-            return output, b-a
+            return output, b-a, einstein_notation
         elif IMPLEMENTATION == 2:
             a = time.time()
             output = torch.tensordot(self.a, self.b, self.contraction_indices)
             b = time.time()
-            return output, b-a
+            return output, b-a, einstein_notation
 
     def construct_einstein_notation(self, aNoDim: int, bNoDim: int, contraction_indices: tuple[list, list]):
         indices = 'abcdefghijklmnopqrstuvwxyz'

@@ -8,7 +8,7 @@ SEQUENTIAL = False
 def log_arguments(*args):
     args = list(args)
     if len(args) != 11:
-        raise ValueError("Exactly 11 arguments are required")
+        raise ValueError("Exactly 12 arguments are required")
     
     for i in range (2, 5):
         args[i] = list(args[i])
@@ -25,13 +25,13 @@ def log_arguments(*args):
             df = pickle.load(f)
     else:
         if SEQUENTIAL:
-            df = pd.DataFrame(columns=["original_A", "original_B", "A", "B", "C", "contraction_dim", "type", "number", "total_time", "A_name", "B_name", "C_name"])
+            df = pd.DataFrame(columns=["original_A", "original_B", "A", "B", "C", "contraction_dim", "type", "number", "total_time", "A_name", "B_name", "C_name", "Einstein"])
         else:
-            df = pd.DataFrame(columns=["A", "B", "C", "contraction_dim", "type", "number", "total_time"])
+            df = pd.DataFrame(columns=["A", "B", "C", "contraction_dim", "type", "number", "total_time", "Einstein"])
 
     if SEQUENTIAL:
         # Append new arguments to the dataframe
-        new_entry = pd.DataFrame([args[0:7] + [1] + args[7:11]], columns=df.columns.tolist())
+        new_entry = pd.DataFrame([args[0:7] + [1] + args[7:]], columns=df.columns.tolist())
         df = pd.concat([df, new_entry], ignore_index=True)
     else:
         # Append new arguments to the dataframe
@@ -44,7 +44,7 @@ def log_arguments(*args):
             df.loc[existing_entry.index, 'total_time'] += args[7]
         else:
             # If no such entries exist, add a new entry with 'number' set to 1
-            new_entry = pd.DataFrame([args[2:7] + [1] + [args[7]]], columns=df.columns.tolist())
+            new_entry = pd.DataFrame([args[2:7] + [1] + [args[7:]]], columns=df.columns.tolist())
             df = pd.concat([df, new_entry], ignore_index=True)
 
     # Save the updated dataframe back to pickle
